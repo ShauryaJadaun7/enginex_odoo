@@ -8,7 +8,7 @@ from typing import List
 
 router = APIRouter()
 
-@router.get("/", response_model=List[TripResponse], dependencies=[Depends(RoleChecker(["Dispatcher", "Fleet Manager"]))])
+@router.get("/", response_model=List[TripResponse], dependencies=[Depends(RoleChecker(["Dispatcher", "Fleet Manager", "Financial Analyst"]))])
 def get_trips(db: Session = Depends(get_db)):
     return db.query(Trip).all()
 

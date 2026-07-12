@@ -36,7 +36,7 @@ export default function VehicleModal({
                             <input type="number" required placeholder="5000" className="w-full p-2.5 border rounded-xl dark:bg-slate-800 dark:border-slate-700" value={newVehicle.maxLoadCapacity} onChange={e => setNewVehicle({ ...newVehicle, maxLoadCapacity: e.target.value })} />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold uppercase mb-1">Acquisition Investment ($) *</label>
+                            <label className="block text-xs font-bold uppercase mb-1">Acquisition Investment (₹) *</label>
                             <input type="number" required placeholder="45000" className="w-full p-2.5 border rounded-xl dark:bg-slate-800 dark:border-slate-700" value={newVehicle.acquisitionCost} onChange={e => setNewVehicle({ ...newVehicle, acquisitionCost: e.target.value })} />
                         </div>
                     </div>

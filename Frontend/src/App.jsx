@@ -29,6 +29,8 @@ import TripModal from "./components/Modals/TripModal.jsx";
 import MaintenanceModal from "./components/Modals/MaintenanceModal.jsx";
 import ExpenseModal from "./components/Modals/ExpenseModal.jsx";
 import CompletionModal from "./components/Modals/CompletionModal.jsx";
+import AlertModal from "./components/Modals/AlertModal.jsx";
+import Logo from "./components/Common/Logo.jsx";
 
 export default function App() {
     // --- Global App Authentication States ---
@@ -37,10 +39,12 @@ export default function App() {
     const [authPassword, setAuthPassword] = useState("");
     const [authRole, setAuthRole] = useState("Fleet Manager");
     const [isLoading, setIsLoading] = useState(false);
+    const [uiAlert, setUiAlert] = useState(null);
 
     // --- UI Layout Modulators ---
     const [currentTab, setCurrentTab] = useState("dashboard");
     const [darkMode, setDarkMode] = useState(false);
+    const [isEntering, setIsEntering] = useState(false);
 
     // --- Core Entity States ---
     const [vehicles, setVehicles] = useState([]);
@@ -135,18 +139,37 @@ export default function App() {
                     // Vehicles: Fleet Manager, Dispatcher, Safety Officer, Financial Analyst (everyone)
                     promises.push(fetchVehicles().then(setVehicles));
                     
-                    // Drivers: Fleet Manager, Dispatcher, Safety Officer
-                    if (["Fleet Manager", "Dispatcher", "Safety Officer"].includes(user.role)) {
-                        promises.push(fetchDrivers().then(setDrivers));
+                    // Drivers: Fleet Manager, Dispatcher, Safety Officer, Financial Analyst
+                    if (["Fleet Manager", "Dispatcher", "Safety Officer", "Financial Analyst"].includes(user.role)) {
+                        promises.push(fetchDrivers().then(res => {
+                            const enforceDriverStatusRule = (driver) => {
+                                if (!driver) return driver;
+                                const expiry = new Date(driver.licenseExpiryDate || "");
+                                const today = new Date();
+                                const daysToExpiry = (expiry - today) / (1000 * 60 * 60 * 24);
+                                
+                                const isSafetyCritical = Number(driver.safetyScore || 0) < 40;
+                                const isLicenseCritical = !isNaN(daysToExpiry) && daysToExpiry <= 30;
+                            
+                                let finalStatus = driver.status || "Available";
+                                if (isSafetyCritical || isLicenseCritical) {
+                                    finalStatus = "Suspended";
+                                } else if (finalStatus === "Suspended") {
+                                    finalStatus = "Available";
+                                }
+                                return { ...driver, status: finalStatus };
+                            };
+                            setDrivers((res || []).map(enforceDriverStatusRule));
+                        }));
                     }
                     
-                    // Trips: Fleet Manager, Dispatcher
-                    if (["Fleet Manager", "Dispatcher"].includes(user.role)) {
+                    // Trips: Fleet Manager, Dispatcher, Financial Analyst
+                    if (["Fleet Manager", "Dispatcher", "Financial Analyst"].includes(user.role)) {
                         promises.push(fetchTrips().then(setTrips));
                     }
 
-                    // Maintenance: Fleet Manager, Safety Officer
-                    if (["Fleet Manager", "Safety Officer"].includes(user.role)) {
+                    // Maintenance: Fleet Manager, Safety Officer, Financial Analyst
+                    if (["Fleet Manager", "Safety Officer", "Financial Analyst"].includes(user.role)) {
                         promises.push(fetchMaintenance().then(setMaintenanceLogs));
                     }
 
@@ -161,7 +184,7 @@ export default function App() {
                     await Promise.all(promises);
                 } catch (error) {
                     console.error("Failed to load initial data", error);
-                    alert("Failed to load data from server. " + error.message);
+                    setUiAlert({ message: "Failed to load data from server. " + error.message, type: "error" });
                 }
             };
             loadData();
@@ -174,6 +197,7 @@ export default function App() {
             setIsLoading(true);
             try {
                 const loggedInUser = await loginUser(authEmail, authPassword);
+                setIsEntering(true);
                 setUser({ email: loggedInUser.email, role: loggedInUser.role, id: loggedInUser.id });
                 
                 const role = loggedInUser.role;
@@ -181,8 +205,12 @@ export default function App() {
                 else if (role === "Dispatcher") setCurrentTab("dashboard");
                 else if (role === "Safety Officer") setCurrentTab("drivers");
                 else if (role === "Financial Analyst") setCurrentTab("expenses");
+                
+                setTimeout(() => {
+                    setIsEntering(false);
+                }, 800);
             } catch (err) {
-                alert(err.message);
+                setUiAlert({ message: err.message, type: "error" });
             } finally {
                 setIsLoading(false);
             }
@@ -192,7 +220,7 @@ export default function App() {
     const createVehicle = (e) => {
         e.preventDefault();
         if (vehicles.some(v => v.registrationNumber.toUpperCase() === newVehicle.registrationNumber.toUpperCase())) {
-            return alert("Error Rule Violation: The vehicle registration number must be completely unique.");
+            return setUiAlert({ message: "The vehicle registration number must be completely unique.", type: "error" });
         }
 
         setVehicles([...vehicles, {
@@ -208,10 +236,33 @@ export default function App() {
 
     const createDriver = (e) => {
         e.preventDefault();
+        
+        // Prevent duplicate license number
+        if (drivers.some(d => 
+            d.licenseNumber.trim().toUpperCase() === newDriver.licenseNumber.trim().toUpperCase()
+        )) {
+            return setUiAlert({ message: "A driver with this License Number already exists.", type: "error" });
+        }
+
+        const expiry = new Date(newDriver.licenseExpiryDate);
+        const today = new Date();
+        const daysToExpiry = (expiry - today) / (1000 * 60 * 60 * 24);
+        
+        const isSafetyCritical = Number(newDriver.safetyScore) < 40;
+        const isLicenseCritical = daysToExpiry <= 30;
+    
+        let finalStatus = newDriver.status;
+        if (isSafetyCritical || isLicenseCritical) {
+            finalStatus = "Suspended";
+        } else if (finalStatus === "Suspended") {
+            finalStatus = "Available";
+        }
+
         setDrivers([...drivers, {
             ...newDriver,
             id: "d_" + Date.now(),
-            safetyScore: Number(newDriver.safetyScore)
+            safetyScore: Number(newDriver.safetyScore),
+            status: finalStatus
         }]);
         setShowDriverModal(false);
     };
@@ -224,17 +275,17 @@ export default function App() {
         if (!selectedVehicle || !selectedDriver) return;
 
         if (selectedVehicle.status === "Retired" || selectedVehicle.status === "In Shop") {
-            return alert("Error: Retired or In Shop vehicles must never be assigned to a trip.");
+            return setUiAlert({ message: "Retired or In Shop vehicles must never be assigned to a trip.", type: "error" });
         }
         const isExpired = new Date(selectedDriver.licenseExpiryDate) < new Date();
         if (isExpired || selectedDriver.status === "Suspended") {
-            return alert("Error: Drivers with expired licenses or Suspended status cannot be assigned to trips.");
+            return setUiAlert({ message: "Drivers with expired licenses or Suspended status cannot be assigned to trips.", type: "error" });
         }
         if (selectedVehicle.status === "On Trip" || selectedDriver.status === "On Trip") {
-            return alert("Error: A driver or vehicle already marked On Trip cannot be assigned to another trip.");
+            return setUiAlert({ message: "A driver or vehicle already marked On Trip cannot be assigned to another trip.", type: "error" });
         }
         if (Number(newTrip.cargoWeight) > selectedVehicle.maxLoadCapacity) {
-            return alert(`Error: Cargo Weight exceeds the vehicle's maximum load capacity of ${selectedVehicle.maxLoadCapacity} kg.`);
+            return setUiAlert({ message: `Cargo Weight exceeds the vehicle's maximum load capacity of ${selectedVehicle.maxLoadCapacity} kg.`, type: "error" });
         }
 
         setVehicles(vehicles.map(v => v.id === newTrip.vehicleId ? { ...v, status: "On Trip" } : v));
@@ -345,22 +396,15 @@ export default function App() {
     if (!user) {
         return (
             <div 
-                className="min-h-screen flex items-center justify-center p-6 text-slate-900 bg-cover bg-center relative"
-                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=2070&auto=format&fit=crop')" }}
+                className="min-h-screen flex items-center justify-center p-6 text-slate-900 animated-bg relative"
             >
                 {/* Dark Overlay for better contrast */}
-                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"></div>
+                <div className="absolute inset-0 bg-slate-950/10 backdrop-blur-[3px]"></div>
 
                 {/* Glassmorphic Login Box with animation */}
-                <div className="relative z-10 glass-panel rounded-3xl p-8 max-w-md w-full animate-fade-in-up transform transition-all hover:scale-[1.01] duration-500">
+                <div className="relative z-10 glass-panel rounded-3xl p-8 max-w-md w-full animate-fade-in-up transform transition-all duration-500 bg-white/95 dark:bg-slate-900/90 border-slate-200/50 dark:border-slate-800/50">
                     <div className="flex items-center space-x-3 mb-6">
-                        <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-600/30">
-                            <Truck className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-black tracking-tight text-slate-800">TransitOps</h1>
-                            <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">Smart Fleet Hub</p>
-                        </div>
+                        <Logo className="h-6 w-6" textClassName="text-2xl font-black" />
                     </div>
                     
                     <h2 className="text-xl font-bold mb-6 text-slate-800">Sign in to Platform</h2>
@@ -413,6 +457,17 @@ export default function App() {
         );
     }
 
+    if (isEntering) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white animate-fade-in-up">
+                <div className="animate-pulse flex flex-col items-center">
+                    <Logo className="h-16 w-16" textClassName="text-3xl font-black mt-4" />
+                    <p className="text-xs font-mono text-slate-400 mt-4 tracking-widest uppercase">Initializing Secure Terminal...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={`min-h-screen flex font-sans transition-colors ${darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
             <Sidebar
@@ -429,6 +484,7 @@ export default function App() {
                 {currentTab === "dashboard" && (
                     <DashboardHub
                         kpis={kpis} trips={trips} vehicles={vehicles} drivers={drivers} user={user}
+                        globalSearch={globalSearch}
                         openCompletionInterface={openCompletionInterface}
                         setCurrentTab={setCurrentTab} setShowTripModal={setShowTripModal}
                         setShowMaintenanceModal={setShowMaintenanceModal} setShowExpenseModal={setShowExpenseModal}
@@ -446,6 +502,7 @@ export default function App() {
                     <DriverDirectory
                         drivers={drivers} globalSearch={globalSearch} handleExportDataCSV={handleExportDataCSV}
                         user={user} setShowDriverModal={setShowDriverModal}
+                        handleRemoveDriver={(id) => setDrivers(drivers.filter(d => d.id !== id))}
                     />
                 )}
                 {currentTab === "trips" && (
@@ -470,6 +527,8 @@ export default function App() {
                 {currentTab === "analytics" && (
                     <AnalyticsROI
                         vehicles={vehicles} financialsPerVehicle={financialsPerVehicle}
+                        trips={trips} drivers={drivers} maintenanceLogs={maintenanceLogs}
+                        fuelLogs={fuelLogs} expenses={expenses}
                     />
                 )}
             </main>
@@ -500,6 +559,11 @@ export default function App() {
                 showExpenseModal={showExpenseModal} setShowExpenseModal={setShowExpenseModal}
                 createStandaloneExpense={createStandaloneExpense} newExp={newExp} setNewExp={setNewExp}
                 vehicles={vehicles}
+            />
+            
+            <AlertModal 
+                alertData={uiAlert} 
+                onClose={() => setUiAlert(null)} 
             />
         </div>
     );

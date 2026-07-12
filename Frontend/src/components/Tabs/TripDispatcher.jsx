@@ -32,7 +32,7 @@ export default function TripDispatcher({
                                     <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${t.status === 'Dispatched' ? 'bg-blue-600 text-white' : 'bg-emerald-600 text-white'}`}>{t.status}</span>
                                     <h4 className="font-bold text-base mt-2">{t.source} &rarr; {t.destination}</h4>
                                 </div>
-                                <span className="text-sm font-mono font-bold text-emerald-600">${t.revenue}</span>
+                                <span className="text-sm font-mono font-bold text-emerald-600">₹{t.revenue}</span>
                             </div>
                             <div className="text-xs space-y-1.5 border-t border-b border-slate-100 dark:border-slate-800 py-3 text-slate-600 dark:text-slate-400">
                                 <p>Asset Allocated: <strong>{veh?.nameModel}</strong> ({veh?.registrationNumber})</p>

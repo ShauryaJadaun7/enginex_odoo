@@ -44,7 +44,7 @@ export default function ExpenseModal({
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-bold uppercase mb-1">Gross Cost ($) *</label>
+                            <label className="block text-xs font-bold uppercase mb-1">Gross Cost (₹) *</label>
                             <input type="number" required placeholder="120" className="w-full p-2.5 border rounded-xl font-mono dark:bg-slate-800 dark:border-slate-700" value={newExp.amount} onChange={e => setNewExp({ ...newExp, amount: e.target.value })} />
                         </div>
                         <div>

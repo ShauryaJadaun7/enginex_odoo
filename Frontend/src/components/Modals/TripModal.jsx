@@ -51,7 +51,7 @@ export default function TripModal({
                             <input type="number" required placeholder="320" className="w-full p-2.5 border rounded-xl font-mono dark:bg-slate-800 dark:border-slate-700" value={newTrip.plannedDistance} onChange={e => setNewTrip({ ...newTrip, plannedDistance: e.target.value })} />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold uppercase mb-1">Freight Revenue ($) *</label>
+                            <label className="block text-xs font-bold uppercase mb-1">Freight Revenue (₹) *</label>
                             <input type="number" required placeholder="1850" className="w-full p-2.5 border rounded-xl font-mono dark:bg-slate-800 dark:border-slate-700" value={newTrip.revenue} onChange={e => setNewTrip({ ...newTrip, revenue: e.target.value })} />
                         </div>
                     </div>

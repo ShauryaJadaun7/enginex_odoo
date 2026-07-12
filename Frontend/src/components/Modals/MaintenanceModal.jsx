@@ -26,7 +26,7 @@ export default function MaintenanceModal({
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-bold uppercase mb-1">Fix Cost ($) *</label>
+                            <label className="block text-xs font-bold uppercase mb-1">Fix Cost (₹) *</label>
                             <input type="number" required placeholder="500" className="w-full p-2.5 border rounded-xl font-mono dark:bg-slate-800 dark:border-slate-700" value={newMaint.cost} onChange={e => setNewMaint({ ...newMaint, cost: e.target.value })} />
                         </div>
                         <div>

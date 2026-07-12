@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Filter, Download, Plus } from 'lucide-react';
 
 export default function VehicleRegistry({
@@ -6,6 +6,18 @@ export default function VehicleRegistry({
     vehicleFilterStatus, setVehicleFilterStatus, globalSearch,
     handleExportDataCSV, user, setShowVehicleModal
 }) {
+    const [showAllVehicles, setShowAllVehicles] = useState(false);
+
+    const filteredVehicles = (vehicles || [])
+        .filter(v => vehicleFilterType === "" || v.type === vehicleFilterType)
+        .filter(v => vehicleFilterStatus === "" || v.status === vehicleFilterStatus)
+        .filter(v => globalSearch === "" || 
+            (v.registrationNumber || "").toLowerCase().includes(globalSearch.toLowerCase()) || 
+            (v.nameModel || "").toLowerCase().includes(globalSearch.toLowerCase())
+        );
+
+    const displayedVehicles = showAllVehicles ? filteredVehicles : filteredVehicles.slice(0, 5);
+
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -51,11 +63,10 @@ export default function VehicleRegistry({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
-                        {vehicles
-                            .filter(v => vehicleFilterType === "" || v.type === vehicleFilterType)
-                            .filter(v => vehicleFilterStatus === "" || v.status === vehicleFilterStatus)
-                            .filter(v => globalSearch === "" || v.registrationNumber.toLowerCase().includes(globalSearch.toLowerCase()) || v.nameModel.toLowerCase().includes(globalSearch.toLowerCase()))
-                            .map(v => (
+                        {displayedVehicles.length === 0 ? (
+                            <tr><td colSpan="6" className="p-6 text-center text-slate-500">No vehicles match the current filters.</td></tr>
+                        ) : (
+                            displayedVehicles.map(v => (
                                 <tr key={v.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition">
                                     <td className="p-4 font-mono font-bold text-blue-600 dark:text-blue-400">{v.registrationNumber}</td>
                                     <td className="p-4 font-semibold">{v.nameModel}</td>
@@ -63,16 +74,30 @@ export default function VehicleRegistry({
                                     <td className="p-4 text-right font-semibold">{v.maxLoadCapacity} kg</td>
                                     <td className="p-4 text-right text-slate-500 font-mono">{v.odometer.toLocaleString()} km</td>
                                     <td className="p-4 text-center">
-                                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${
-                                            v.status === "Available" ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30" :
-                                            v.status === "On Trip" ? "bg-blue-50 text-blue-600 dark:bg-blue-950/30" :
-                                            v.status === "In Shop" ? "bg-amber-50 text-amber-600 dark:bg-amber-950/30" : "bg-rose-50 text-rose-600"
-                                        }`}>{v.status}</span>
+                                        <span className={`inline-block w-24 px-2 py-1.5 rounded-lg text-xs font-bold shadow-sm ${
+                                            v.status === "Available" ? "bg-emerald-500 text-slate-900" :
+                                            v.status === "On Trip" ? "bg-blue-400 text-slate-900" :
+                                            v.status === "In Shop" ? "bg-amber-600 text-slate-900" : 
+                                            "bg-rose-400 text-slate-900"
+                                        }`}>
+                                            {v.status}
+                                        </span>
                                     </td>
                                 </tr>
-                            ))}
+                            ))
+                        )}
                     </tbody>
                 </table>
+                {filteredVehicles.length > 5 && (
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800/20 text-center border-t border-slate-100 dark:border-slate-800">
+                        <button 
+                            onClick={() => setShowAllVehicles(!showAllVehicles)}
+                            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                        >
+                            {showAllVehicles ? "Show Less" : `Show More (${filteredVehicles.length - 5} more)`}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -18,7 +18,7 @@ def onboard_driver(
     """Onboard a new driver under Safety Officer RBAC."""
     return driver_service.create_driver(db=db, driver_in=driver_in)
 
-@router.get("/", response_model=List[DriverResponse], dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager", "Dispatcher"]))])
+@router.get("/", response_model=List[DriverResponse], dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager", "Dispatcher", "Financial Analyst"]))])
 def list_drivers(
     status: Optional[str] = Query(None, description="Filter by operational status"),
     license_category: Optional[str] = Query(None, description="Filter by license category"),

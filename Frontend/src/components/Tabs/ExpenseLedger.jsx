@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 
 export default function ExpenseLedger({
     fuelLogs, expenses, vehicles, user, setShowExpenseModal
 }) {
+    const [showAllFuel, setShowAllFuel] = useState(false);
+    const [showAllExpenses, setShowAllExpenses] = useState(false);
+
     // Calculate totals
     const totalFuelCost = fuelLogs.reduce((sum, f) => sum + (f.cost || 0), 0);
     const totalOtherCost = expenses.reduce((sum, e) => sum + (e.cost || 0), 0);
     const grandTotal = totalFuelCost + totalOtherCost;
+
+    const displayedFuel = showAllFuel ? fuelLogs : fuelLogs.slice(0, 5);
+    const displayedExpenses = showAllExpenses ? expenses : expenses.slice(0, 5);
 
     return (
         <div className="space-y-6">
@@ -40,16 +46,30 @@ export default function ExpenseLedger({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {fuelLogs.map(f => (
-                                <tr key={f.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
-                                    <td className="p-4 font-bold">{vehicles.find(v => v.id === f.vehicleId)?.nameModel || 'Unknown'}</td>
-                                    <td className="p-4 text-slate-500 font-mono text-xs">{f.date || 'N/A'}</td>
-                                    <td className="p-4 text-right font-mono text-slate-600 dark:text-slate-300">{f.liters} L</td>
-                                    <td className="p-4 text-right font-mono font-bold text-rose-500">${f.cost?.toLocaleString() || 0}</td>
-                                </tr>
-                            ))}
+                            {displayedFuel.length === 0 ? (
+                                <tr><td colSpan="4" className="p-6 text-center text-slate-500">No fuel logs recorded.</td></tr>
+                            ) : (
+                                displayedFuel.map(f => (
+                                    <tr key={f.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
+                                        <td className="p-4 font-bold">{vehicles.find(v => v.id === f.vehicleId)?.nameModel || 'Unknown'}</td>
+                                        <td className="p-4 text-slate-500 font-mono text-xs">{f.date || 'N/A'}</td>
+                                        <td className="p-4 text-right font-mono text-slate-600 dark:text-slate-300">{f.liters} L</td>
+                                        <td className="p-4 text-right font-mono font-bold text-rose-500">₹{f.cost?.toLocaleString() || 0}</td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
+                    {fuelLogs.length > 5 && (
+                        <div className="p-3 bg-slate-50 dark:bg-slate-800/20 text-center border-t border-slate-100 dark:border-slate-800">
+                            <button 
+                                onClick={() => setShowAllFuel(!showAllFuel)}
+                                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                            >
+                                {showAllFuel ? "Show Less" : `Show More (${fuelLogs.length - 5} more)`}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -68,22 +88,36 @@ export default function ExpenseLedger({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {expenses.map(e => (
-                                <tr key={e.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
-                                    <td className="p-4 font-bold">{vehicles.find(v => v.id === e.vehicleId)?.nameModel || 'Unknown'}</td>
-                                    <td className="p-4 text-slate-500 font-mono text-xs">{e.date || 'N/A'}</td>
-                                    <td className="p-4 font-semibold text-slate-500">{e.expenseType || e.type || 'N/A'}</td>
-                                    <td className="p-4 text-right font-mono font-bold text-rose-500">${e.cost?.toLocaleString() || 0}</td>
-                                </tr>
-                            ))}
+                            {displayedExpenses.length === 0 ? (
+                                <tr><td colSpan="4" className="p-6 text-center text-slate-500">No general expenses recorded.</td></tr>
+                            ) : (
+                                displayedExpenses.map(e => (
+                                    <tr key={e.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
+                                        <td className="p-4 font-bold">{vehicles.find(v => v.id === e.vehicleId)?.nameModel || 'Unknown'}</td>
+                                        <td className="p-4 text-slate-500 font-mono text-xs">{e.date || 'N/A'}</td>
+                                        <td className="p-4 font-semibold text-slate-500">{e.expenseType || e.type || 'N/A'}</td>
+                                        <td className="p-4 text-right font-mono font-bold text-rose-500">₹{e.cost?.toLocaleString() || 0}</td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
+                    {expenses.length > 5 && (
+                        <div className="p-3 bg-slate-50 dark:bg-slate-800/20 text-center border-t border-slate-100 dark:border-slate-800">
+                            <button 
+                                onClick={() => setShowAllExpenses(!showAllExpenses)}
+                                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                            >
+                                {showAllExpenses ? "Show Less" : `Show More (${expenses.length - 5} more)`}
+                            </button>
+                        </div>
+                    )}
                 </div>
                 
                 {/* Summary Footer */}
                 <div className="bg-slate-50 dark:bg-slate-800 p-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
                     <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">Total Operational Cost (Auto) = Fuel + Expenses</span>
-                    <span className="font-black text-amber-500 text-lg font-mono">${grandTotal.toLocaleString()}</span>
+                    <span className="font-black text-amber-500 text-lg font-mono">₹{grandTotal.toLocaleString()}</span>
                 </div>
             </div>
         </div>

@@ -53,21 +53,21 @@ def seed_db():
 
         print("Seeding Vehicles...")
         v_data = [
-            ("GJ-01-AA-1234", "Ford Transit", "Van", 1200, 15000, 32000, "Available"),
-            ("MH-02-BB-5678", "Volvo FH16", "Semi-Truck", 25000, 85000, 120000, "On Trip"),
-            ("DL-03-CC-9012", "Tata Prima", "Semi-Truck", 22000, 45000, 110000, "In Shop"),
-            ("KA-04-DD-3456", "Isuzu D-Max", "Pickup", 1500, 22000, 28000, "Available"),
-            ("TN-05-EE-7890", "Mercedes Actros", "Semi-Truck", 30000, 115000, 145000, "On Trip"),
-            ("UP-06-FF-1122", "Mahindra Bolero", "Pickup", 1000, 8000, 15000, "Available"),
-            ("RJ-07-GG-3344", "Ashok Leyland Dost", "Van", 1500, 5000, 12000, "Available"),
-            ("WB-08-HH-5566", "Eicher Pro", "Box Truck", 8000, 35000, 45000, "In Shop"),
-            ("KL-09-II-7788", "Scania R450", "Semi-Truck", 28000, 92000, 135000, "On Trip"),
-            ("PB-10-JJ-9900", "Chevy Express", "Van", 1200, 60000, 29000, "Available"),
-            ("HR-11-KK-1212", "Ford F-150", "Pickup", 1100, 18000, 35000, "On Trip"),
-            ("MP-12-LL-3434", "Peterbilt 579", "Semi-Truck", 32000, 210000, 160000, "In Shop"),
-            ("CH-13-MM-5656", "Kenworth T680", "Semi-Truck", 30000, 185000, 155000, "Available"),
-            ("TS-14-NN-7878", "Ram 2500", "Pickup", 1400, 11000, 42000, "Available"),
-            ("AP-15-OO-9090", "Hino 268", "Box Truck", 11000, 54000, 68000, "On Trip"),
+            ("MH-01-AA-1234", "Tata Ace", "Light Truck", 750, 45000, 550000, "Available"),
+            ("MH-04-BB-5678", "Tata Prima", "Heavy Truck", 25000, 185000, 3200000, "On Trip"),
+            ("DL-01-CC-9012", "Ashok Leyland Dost", "Light Truck", 1250, 45000, 750000, "In Shop"),
+            ("KA-05-DD-3456", "Mahindra Blazo X", "Heavy Truck", 35000, 220000, 3800000, "Available"),
+            ("TN-02-EE-7890", "BharatBenz 3123R", "Heavy Truck", 31000, 115000, 3100000, "On Trip"),
+            ("UP-14-FF-1122", "Mahindra Bolero Pik-Up", "Pickup", 1000, 68000, 850000, "Available"),
+            ("RJ-14-GG-3344", "Eicher Pro 2049", "Light Truck", 2000, 35000, 1100000, "Available"),
+            ("WB-02-HH-5566", "Tata Signa", "Heavy Truck", 40000, 135000, 3900000, "In Shop"),
+            ("KL-07-II-7788", "Swaraj Mazda", "Box Truck", 8000, 192000, 1450000, "On Trip"),
+            ("PB-08-JJ-9900", "Maruti Suzuki Super Carry", "Light Truck", 740, 60000, 490000, "Available"),
+            ("HR-26-KK-1212", "Force Traveller", "Van", 1100, 118000, 1500000, "On Trip"),
+            ("MP-09-LL-3434", "Eicher Pro 3015", "Heavy Truck", 15000, 210000, 2400000, "In Shop"),
+            ("CH-01-MM-5656", "Ashok Leyland Boss", "Medium Truck", 11000, 185000, 1850000, "Available"),
+            ("TS-09-NN-7878", "Tata Ultra", "Medium Truck", 7000, 81000, 1650000, "Available"),
+            ("AP-16-OO-9090", "Mahindra Furio", "Medium Truck", 11000, 54000, 1780000, "On Trip"),
         ]
         vehicles = []
         for v in v_data:
@@ -78,21 +78,21 @@ def seed_db():
 
         print("Seeding Drivers...")
         d_data = [
-            ("Alex Carter", "DL-IND-9988", "Heavy Commercial", 95, "Available"),
-            ("Rajesh Kumar", "DL-IND-4455", "Heavy Commercial", 88, "On Trip"),
-            ("John Doe", "DL-US-12345", "Light Commercial", 72, "Available"),
-            ("Maria Garcia", "DL-ES-78901", "Heavy Commercial", 99, "On Trip"),
-            ("Ahmed Hassan", "DL-AE-34567", "Light Commercial", 85, "Suspended"),
-            ("Wei Chen", "DL-CN-23456", "Heavy Commercial", 91, "Available"),
-            ("Suresh Nair", "DL-IND-1122", "Light Commercial", 78, "Off Duty"),
-            ("David Smith", "DL-UK-88776", "Heavy Commercial", 82, "On Trip"),
-            ("Priya Sharma", "DL-IND-5544", "Heavy Commercial", 96, "Available"),
-            ("Yusuf Ali", "DL-PK-99001", "Light Commercial", 65, "Available"),
-            ("Liam O'Connor", "DL-IE-44332", "Heavy Commercial", 93, "On Trip"),
-            ("Elena Rostova", "DL-RU-66554", "Heavy Commercial", 87, "Off Duty"),
-            ("Kenji Tanaka", "DL-JP-11223", "Light Commercial", 98, "Available"),
-            ("Fatima Diallo", "DL-ZA-44556", "Heavy Commercial", 89, "On Trip"),
-            ("Carlos Ruiz", "DL-MX-77889", "Light Commercial", 74, "Suspended"),
+            ("Rajesh Kumar", "DL-IND-9988", "Heavy Commercial", 95, "Available"),
+            ("Amit Patel", "DL-IND-4455", "Heavy Commercial", 88, "On Trip"),
+            ("Vikram Singh", "DL-IND-12345", "Light Commercial", 72, "Available"),
+            ("Priya Desai", "DL-IND-78901", "Heavy Commercial", 99, "On Trip"),
+            ("Rahul Verma", "DL-IND-34567", "Light Commercial", 85, "Suspended"),
+            ("Neha Sharma", "DL-IND-23456", "Heavy Commercial", 91, "Available"),
+            ("Suresh Menon", "DL-IND-1122", "Light Commercial", 78, "Off Duty"),
+            ("Anjali Gupta", "DL-IND-88776", "Heavy Commercial", 82, "On Trip"),
+            ("Ramesh Yadav", "DL-IND-5544", "Heavy Commercial", 96, "Available"),
+            ("Manish Tiwari", "DL-IND-99001", "Light Commercial", 65, "Available"),
+            ("Deepak Chahar", "DL-IND-44332", "Heavy Commercial", 93, "On Trip"),
+            ("Sneha Iyer", "DL-IND-66554", "Heavy Commercial", 87, "Off Duty"),
+            ("Manoj Bajpayee", "DL-IND-11223", "Light Commercial", 98, "Available"),
+            ("Sunita Rao", "DL-IND-44556", "Heavy Commercial", 89, "On Trip"),
+            ("Kiran Bedi", "DL-IND-77889", "Light Commercial", 74, "Suspended"),
         ]
         drivers = []
         for i, d in enumerate(d_data):
@@ -102,7 +102,7 @@ def seed_db():
                 license_number=d[1],
                 license_category=d[2],
                 license_expiry_date=(datetime.now() + timedelta(days=random.randint(100, 2000))).date(),
-                contact_number=f"+1 555-01{i:02d}",
+                contact_number=f"+91 98765{i:04d}",
                 safety_score=d[3],
                 status=d[4]
             )
@@ -112,18 +112,18 @@ def seed_db():
 
         print("Seeding Trips...")
         t_data = [
-            (vehicles[1].id, drivers[1].id, "Mundra Port", "Ahmedabad ICD", 18000, 350, 2500, "Dispatched"),
-            (vehicles[4].id, drivers[3].id, "Los Angeles", "San Francisco", 25000, 600, 4200, "Dispatched"),
-            (vehicles[8].id, drivers[7].id, "New York", "Boston", 20000, 340, 2800, "Completed"),
-            (vehicles[10].id, drivers[10].id, "Chicago", "Detroit", 1000, 450, 1500, "Dispatched"),
-            (vehicles[14].id, drivers[13].id, "Houston", "Dallas", 9500, 380, 2100, "Dispatched"),
-            (vehicles[0].id, drivers[0].id, "Seattle", "Portland", 800, 280, 900, "Completed"),
-            (vehicles[3].id, drivers[2].id, "Miami", "Orlando", 1200, 370, 1100, "Completed"),
-            (vehicles[6].id, drivers[5].id, "Phoenix", "Tucson", 900, 180, 800, "Completed"),
-            (vehicles[9].id, drivers[8].id, "Denver", "Colorado Springs", 1000, 110, 600, "Dispatched"),
-            (vehicles[13].id, drivers[12].id, "Atlanta", "Savannah", 1300, 400, 1300, "Dispatched"),
-            (vehicles[1].id, drivers[1].id, "Ahmedabad ICD", "Delhi", 20000, 900, 5500, "Completed"),
-            (vehicles[4].id, drivers[3].id, "San Francisco", "Sacramento", 22000, 140, 1200, "Completed"),
+            (vehicles[1].id, drivers[1].id, "Mundra Port", "Ahmedabad ICD", 18000, 350, 45000, "Dispatched"),
+            (vehicles[4].id, drivers[3].id, "Mumbai", "Pune", 25000, 150, 18000, "Dispatched"),
+            (vehicles[8].id, drivers[7].id, "Delhi", "Jaipur", 20000, 280, 32000, "Completed"),
+            (vehicles[10].id, drivers[10].id, "Chennai", "Bangalore", 1000, 350, 28000, "Dispatched"),
+            (vehicles[14].id, drivers[13].id, "Hyderabad", "Vijayawada", 9500, 275, 24000, "Dispatched"),
+            (vehicles[0].id, drivers[0].id, "Kolkata", "Haldia", 700, 120, 12000, "Completed"),
+            (vehicles[3].id, drivers[2].id, "Surat", "Vadodara", 1200, 150, 14000, "Completed"),
+            (vehicles[6].id, drivers[5].id, "Bangalore", "Mysore", 900, 145, 12500, "Completed"),
+            (vehicles[9].id, drivers[8].id, "Lucknow", "Kanpur", 700, 90, 8000, "Dispatched"),
+            (vehicles[12].id, drivers[12].id, "Coimbatore", "Kochi", 7500, 190, 22000, "Dispatched"),
+            (vehicles[1].id, drivers[1].id, "Ahmedabad ICD", "Delhi", 20000, 900, 85000, "Completed"),
+            (vehicles[4].id, drivers[3].id, "Pune", "Nashik", 22000, 210, 25000, "Completed"),
         ]
         trips = []
         for t in t_data:
@@ -144,16 +144,16 @@ def seed_db():
 
         print("Seeding MaintenanceLog...")
         m_data = [
-            (vehicles[2].id, "Engine Oil & Filter Change", 450, "Open"),
-            (vehicles[7].id, "Brake Pad Replacement", 800, "Active"),
-            (vehicles[11].id, "Transmission Overhaul", 3500, "Open"),
-            (vehicles[0].id, "Tire Rotation", 120, "Closed"),
-            (vehicles[3].id, "Battery Replacement", 250, "Closed"),
-            (vehicles[4].id, "Coolant Flush", 180, "Closed"),
-            (vehicles[8].id, "Suspension Repair", 1200, "Active"),
-            (vehicles[14].id, "Headlight Bulb Replacement", 40, "Closed"),
-            (vehicles[9].id, "Wiper Blade Replacement", 30, "Closed"),
-            (vehicles[1].id, "Routine Inspection", 150, "Closed"),
+            (vehicles[2].id, "Engine Oil & Filter Change", 4500, "Open"),
+            (vehicles[7].id, "Brake Pad Replacement", 8500, "Active"),
+            (vehicles[11].id, "Transmission Overhaul", 45000, "Open"),
+            (vehicles[0].id, "Tire Rotation", 1200, "Closed"),
+            (vehicles[3].id, "Battery Replacement", 6500, "Closed"),
+            (vehicles[4].id, "Coolant Flush", 1800, "Closed"),
+            (vehicles[8].id, "Suspension Repair", 12500, "Active"),
+            (vehicles[14].id, "Headlight Bulb Replacement", 500, "Closed"),
+            (vehicles[9].id, "Wiper Blade Replacement", 400, "Closed"),
+            (vehicles[1].id, "Routine Inspection", 2500, "Closed"),
         ]
         for i, m in enumerate(m_data):
             mlog = MaintenanceLog(
@@ -170,12 +170,12 @@ def seed_db():
         print("Seeding Expenses...")
         expense_types = ["Fuel", "Toll", "Permit", "Parking", "Fine", "Maintenance"]
         expenses = []
-        for _ in range(40):
+        for _ in range(60):
             exp = Expense(
                 id=uuid.uuid4(),
                 vehicle_id=random.choice(vehicles).id,
                 expense_type=random.choice(expense_types),
-                amount=random.randint(20, 500),
+                amount=random.randint(500, 8000),
                 expense_date=(datetime.now() - timedelta(days=random.randint(1, 60))).date()
             )
             expenses.append(exp)
@@ -192,4 +192,3 @@ def seed_db():
 
 if __name__ == "__main__":
     seed_db()
-

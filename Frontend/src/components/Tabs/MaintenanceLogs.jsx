@@ -35,7 +35,7 @@ export default function MaintenanceLogs({
                                     <td className="p-4 font-bold">{veh?.nameModel} <span className="text-xs font-mono font-normal text-slate-400">({veh?.registrationNumber})</span></td>
                                     <td className="p-4 font-semibold text-slate-600 dark:text-slate-400">{m.description}</td>
                                     <td className="p-4 font-mono text-xs">{m.date}</td>
-                                    <td className="p-4 text-right font-mono font-bold">${m.cost}</td>
+                                    <td className="p-4 text-right font-mono font-bold">₹{m.cost}</td>
                                     <td className="p-4 text-center">
                                         <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${m.status === 'Active' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'}`}>{m.status === 'Active' ? 'In Shop' : 'Closed Out'}</span>
                                     </td>

@@ -2,9 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    font-family: 'Bricolage Grotesque', sans-serif;
+  }
+}
+
 @layer utilities {
   .glass-panel {
-    @apply backdrop-blur-xl bg-white/70 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] border border-white/50;
+    @apply backdrop-blur-xl bg-white/85 dark:bg-slate-900/80 shadow-[0_8px_32px_0_rgba(15,23,42,0.08)] border border-slate-200/50 dark:border-slate-800/50;
   }
 }
 
@@ -21,4 +27,23 @@
 
 .animate-fade-in-up {
   animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Premium Animated Grid/Wave Background for Login */
+.animated-bg {
+  background: linear-gradient(-45deg, #0f172a, #1e1b4b, #0f3057, #111827);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }

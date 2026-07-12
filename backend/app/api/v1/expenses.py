@@ -1,10 +1,11 @@
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, RoleChecker
 from app.models.expense import Expense
-from app.schemas.expense import ExpenseResponse
+from app.schemas.expense import ExpenseResponse, OutflowCreate, OutflowMessage, OutflowLedgerResponse, VehicleROI
+from app.services.expense import ExpenseService
 
 router = APIRouter(dependencies=[Depends(RoleChecker(["Fleet Manager", "Financial Analyst"]))])
 

@@ -21,7 +21,7 @@ export default function CompletionModal({
                             <input type="number" required className="w-full p-2.5 border rounded-xl font-mono dark:bg-slate-800 dark:border-slate-700" value={completionData.fuelConsumed} onChange={e => setCompletionData({ ...completionData, fuelConsumed: e.target.value })} />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold uppercase mb-1">Fuel Financial Cost ($) *</label>
+                            <label className="block text-xs font-bold uppercase mb-1">Fuel Financial Cost (₹) *</label>
                             <input type="number" required className="w-full p-2.5 border rounded-xl font-mono dark:bg-slate-800 dark:border-slate-700" value={completionData.fuelCost} onChange={e => setCompletionData({ ...completionData, fuelCost: e.target.value })} />
                         </div>
                     </div>
