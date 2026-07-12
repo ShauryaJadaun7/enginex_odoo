@@ -107,3 +107,48 @@ def update_driver_safety_score(
             detail="Driver profile not found."
         )
     return db_driver
+
+@router.patch("/{driver_id}/status", response_model=DriverResponse, dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager"]))])
+def manually_update_status(
+    driver_id: UUID,
+    status_value: str = Body(..., embed=True, alias="status"),
+    db: Session = Depends(get_db)
+):
+    """Manually override the operational status of a driver."""
+    db_driver = driver_service.update_driver_status(db=db, driver_id=driver_id, status=status_value)
+    if not db_driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Driver profile not found."
+        )
+    return db_driver
+
+@router.get("/{driver_id}/safety-dashboard", dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager"]))])
+def get_driver_safety_dashboard(
+    driver_id: UUID,
+    db: Session = Depends(get_db)
+):
+    """View telemetry and safety dashboard for a driver."""
+    db_driver = db.query(Driver).filter(Driver.id == driver_id).first()
+    if not db_driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Driver not found."
+        )
+    
+    # Generate dashboard analytics based on safety score
+    violations_count = 0 if db_driver.safety_score >= 90 else (100 - db_driver.safety_score) // 10
+    telemetry_status = "Normal"
+    if db_driver.safety_score < 40:
+        telemetry_status = "Critical Alert: Score below 40. Immediate action required."
+    elif db_driver.safety_score < 70:
+        telemetry_status = "Warning: Multiple recent violations recorded."
+
+    return {
+        "driver_id": db_driver.id,
+        "name": db_driver.name,
+        "safety_score": db_driver.safety_score,
+        "current_status": db_driver.status,
+        "recent_violations": violations_count,
+        "telemetry_status": telemetry_status
+    }

@@ -1,6 +1,8 @@
 from datetime import date
 from uuid import UUID
 from pydantic import BaseModel, Field
+from typing import Optional
+from app.schemas.vehicle import VehicleResponse
 
 class MaintenanceBase(BaseModel):
     vehicle_id: UUID
@@ -15,6 +17,7 @@ class MaintenanceCreate(MaintenanceBase):
 
 class MaintenanceResponse(MaintenanceBase):
     id: UUID
+    vehicle: Optional[VehicleResponse] = None
 
     class Config:
         from_attributes = True
