@@ -73,3 +73,42 @@ export const loginUser = async (email, password) => {
     }
     return await response.json();
 };
+
+export const createVehicleAPI = (v) => fetchAPI("/vehicles/", {
+    method: "POST",
+    body: JSON.stringify({
+        registration_number: v.registrationNumber,
+        model_name: v.nameModel,
+        type: v.type,
+        max_capacity_kg: v.maxLoadCapacity,
+        odometer: v.odometer || 0,
+        acquisition_cost: v.acquisitionCost,
+        status: v.status || "Available"
+    })
+});
+
+export const createDriverAPI = (d) => fetchAPI("/drivers/", {
+    method: "POST",
+    body: JSON.stringify({
+        name: d.name,
+        license_number: d.licenseNumber,
+        license_category: d.licenseCategory,
+        license_expiry_date: d.licenseExpiryDate,
+        contact_number: d.contactNumber || "+91 9999900000",
+        safety_score: d.safetyScore || 100
+    })
+});
+
+export const createTripAPI = (t) => fetchAPI("/trips/", {
+    method: "POST",
+    body: JSON.stringify({
+        vehicle_id: t.vehicleId,
+        driver_id: t.driverId,
+        source: t.source,
+        destination: t.destination,
+        cargo_weight_kg: t.cargoWeight,
+        planned_distance: t.plannedDistance,
+        revenue: t.revenue
+    })
+});
+

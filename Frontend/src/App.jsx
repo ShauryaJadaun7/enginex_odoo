@@ -6,7 +6,8 @@ import {
 } from "./utils/constants.js";
 
 import {
-    loginUser, fetchVehicles, fetchTrips, fetchDrivers, fetchMaintenance, fetchExpenses
+    loginUser, fetchVehicles, fetchTrips, fetchDrivers, fetchMaintenance, fetchExpenses,
+    createVehicleAPI, createDriverAPI, createTripAPI
 } from "./utils/api.js";
 
 // Layout
@@ -191,6 +192,44 @@ export default function App() {
         }
     }, [user]);
 
+    // Refetch available vehicles & drivers dynamically when opening Dispatch Modal
+    React.useEffect(() => {
+        if (showTripModal && user) {
+            const refreshResources = async () => {
+                try {
+                    const [vList, dList] = await Promise.all([
+                        fetchVehicles(),
+                        fetchDrivers()
+                    ]);
+                    
+                    const enforceDriverStatusRule = (driver) => {
+                        if (!driver) return driver;
+                        const expiry = new Date(driver.licenseExpiryDate || "");
+                        const today = new Date();
+                        const daysToExpiry = (expiry - today) / (1000 * 60 * 60 * 24);
+                        
+                        const isSafetyCritical = Number(driver.safetyScore || 0) < 40;
+                        const isLicenseCritical = !isNaN(daysToExpiry) && daysToExpiry <= 30;
+                    
+                        let finalStatus = driver.status || "Available";
+                        if (isSafetyCritical || isLicenseCritical) {
+                            finalStatus = "Suspended";
+                        } else if (finalStatus === "Suspended") {
+                            finalStatus = "Available";
+                        }
+                        return { ...driver, status: finalStatus };
+                    };
+                    
+                    setVehicles(vList || []);
+                    setDrivers((dList || []).map(enforceDriverStatusRule));
+                } catch (err) {
+                    console.error("Failed to refresh resources", err);
+                }
+            };
+            refreshResources();
+        }
+    }, [showTripModal, user]);
+
     const handleLogin = async (e) => {
         e.preventDefault();
         if (authEmail && authPassword) {
@@ -217,24 +256,23 @@ export default function App() {
         }
     };
 
-    const createVehicle = (e) => {
+    const createVehicle = async (e) => {
         e.preventDefault();
         if (vehicles.some(v => v.registrationNumber.toUpperCase() === newVehicle.registrationNumber.toUpperCase())) {
             return setUiAlert({ message: "The vehicle registration number must be completely unique.", type: "error" });
         }
 
-        setVehicles([...vehicles, {
-            ...newVehicle,
-            id: "v_" + Date.now(),
-            registrationNumber: newVehicle.registrationNumber.toUpperCase(),
-            maxLoadCapacity: Number(newVehicle.maxLoadCapacity),
-            odometer: Number(newVehicle.odometer || 0),
-            acquisitionCost: Number(newVehicle.acquisitionCost)
-        }]);
-        setShowVehicleModal(false);
+        try {
+            const addedVehicle = await createVehicleAPI(newVehicle);
+            setVehicles([...vehicles, addedVehicle]);
+            setShowVehicleModal(false);
+            setNewVehicle({ registrationNumber: "", nameModel: "", type: "Van", maxLoadCapacity: "", odometer: "", acquisitionCost: "", status: "Available" });
+        } catch (err) {
+            setUiAlert({ message: "Failed to register vehicle: " + err.message, type: "error" });
+        }
     };
 
-    const createDriver = (e) => {
+    const createDriver = async (e) => {
         e.preventDefault();
         
         // Prevent duplicate license number
@@ -258,16 +296,18 @@ export default function App() {
             finalStatus = "Available";
         }
 
-        setDrivers([...drivers, {
-            ...newDriver,
-            id: "d_" + Date.now(),
-            safetyScore: Number(newDriver.safetyScore),
-            status: finalStatus
-        }]);
-        setShowDriverModal(false);
+        try {
+            const driverToOnboard = { ...newDriver, status: finalStatus };
+            const addedDriver = await createDriverAPI(driverToOnboard);
+            setDrivers([...drivers, addedDriver]);
+            setShowDriverModal(false);
+            setNewDriver({ name: "", licenseNumber: "", licenseCategory: "Commercial", licenseExpiryDate: "", contactNumber: "", safetyScore: 100, status: "Available" });
+        } catch (err) {
+            setUiAlert({ message: "Failed to onboard driver: " + err.message, type: "error" });
+        }
     };
 
-    const executeTripDispatch = (e) => {
+    const executeTripDispatch = async (e) => {
         e.preventDefault();
         const selectedVehicle = vehicles.find(v => v.id === newTrip.vehicleId);
         const selectedDriver = drivers.find(d => d.id === newTrip.driverId);
@@ -288,18 +328,16 @@ export default function App() {
             return setUiAlert({ message: `Cargo Weight exceeds the vehicle's maximum load capacity of ${selectedVehicle.maxLoadCapacity} kg.`, type: "error" });
         }
 
-        setVehicles(vehicles.map(v => v.id === newTrip.vehicleId ? { ...v, status: "On Trip" } : v));
-        setDrivers(drivers.map(d => d.id === newTrip.driverId ? { ...d, status: "On Trip" } : d));
-
-        setTrips([...trips, {
-            ...newTrip,
-            id: "t_" + Date.now(),
-            cargoWeight: Number(newTrip.cargoWeight),
-            plannedDistance: Number(newTrip.plannedDistance),
-            revenue: Number(newTrip.revenue),
-            status: "Dispatched"
-        }]);
-        setShowTripModal(false);
+        try {
+            const addedTrip = await createTripAPI(newTrip);
+            setTrips([...trips, addedTrip]);
+            setVehicles(vehicles.map(v => v.id === newTrip.vehicleId ? { ...v, status: "On Trip" } : v));
+            setDrivers(drivers.map(d => d.id === newTrip.driverId ? { ...d, status: "On Trip" } : d));
+            setShowTripModal(false);
+            setNewTrip({ vehicleId: "", driverId: "", source: "", destination: "", cargoWeight: "", plannedDistance: "", revenue: "" });
+        } catch (err) {
+            setUiAlert({ message: "Failed to dispatch trip: " + err.message, type: "error" });
+        }
     };
 
     const handleCancelTrip = (tripId) => {
