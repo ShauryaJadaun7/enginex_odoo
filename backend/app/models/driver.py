@@ -3,7 +3,8 @@
 # driver.py
 from datetime import date
 from uuid import UUID, uuid4
-from typing import TYPE_CHECKING
+# isme ek Optional import reh gaya tha 
+from typing import TYPE_CHECKING, Optional
 from sqlalchemy import String, Numeric, Date, Boolean, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -37,4 +38,4 @@ class Driver(Base):
         CheckConstraint("status IN ('Available', 'On Trip', 'Off Duty', 'Suspended')", name='chk_driver_status'),
     )
 
-
+
