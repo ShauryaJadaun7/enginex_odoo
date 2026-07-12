@@ -131,16 +131,21 @@ export default function App() {
         if (user) {
             const loadData = async () => {
                 try {
-                    const [vData, dData, tData] = await Promise.all([
-                        fetchVehicles(),
-                        fetchDrivers(),
-                        fetchTrips(),
-                    ]);
-                    setVehicles(vData);
-                    setDrivers(dData);
-                    setTrips(tData);
+                    const promises = [];
+                    // Vehicles: Fleet Manager, Dispatcher, Safety Officer, Financial Analyst (everyone)
+                    promises.push(fetchVehicles().then(setVehicles));
                     
-                    // The backend routes for maintenance/expenses are not implemented yet, so we leave them empty for now.
+                    // Drivers: Fleet Manager, Dispatcher, Safety Officer
+                    if (["Fleet Manager", "Dispatcher", "Safety Officer"].includes(user.role)) {
+                        promises.push(fetchDrivers().then(setDrivers));
+                    }
+                    
+                    // Trips: Fleet Manager, Dispatcher
+                    if (["Fleet Manager", "Dispatcher"].includes(user.role)) {
+                        promises.push(fetchTrips().then(setTrips));
+                    }
+
+                    await Promise.all(promises);
                 } catch (error) {
                     console.error("Failed to load initial data", error);
                     alert("Failed to load data from server. " + error.message);
@@ -157,6 +162,12 @@ export default function App() {
             try {
                 const loggedInUser = await loginUser(authEmail, authPassword);
                 setUser({ email: loggedInUser.email, role: loggedInUser.role, id: loggedInUser.id });
+                
+                const role = loggedInUser.role;
+                if (role === "Fleet Manager") setCurrentTab("vehicles");
+                else if (role === "Dispatcher") setCurrentTab("dashboard");
+                else if (role === "Safety Officer") setCurrentTab("drivers");
+                else if (role === "Financial Analyst") setCurrentTab("expenses");
             } catch (err) {
                 alert(err.message);
             } finally {
@@ -320,59 +331,77 @@ export default function App() {
 
     if (!user) {
         return (
-            <div className="min-h-screen bg-[#111111] flex items-center justify-center p-6 text-slate-100 font-sans">
-                <div className="max-w-md w-full">
-                    <h2 className="text-3xl font-bold mb-2">Sign in to your account</h2>
-                    <p className="text-sm text-slate-400 mb-8">Enter your credentials to continue</p>
+            <div 
+                className="min-h-screen flex items-center justify-center p-6 text-slate-900 bg-cover bg-center relative"
+                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=2070&auto=format&fit=crop')" }}
+            >
+                {/* Dark Overlay for better contrast */}
+                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"></div>
+
+                {/* Glassmorphic Login Box with animation */}
+                <div className="relative z-10 glass-panel rounded-3xl p-8 max-w-md w-full animate-fade-in-up transform transition-all hover:scale-[1.01] duration-500">
+                    <div className="flex items-center space-x-3 mb-6">
+                        <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-600/30">
+                            <Truck className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-black tracking-tight text-slate-800">TransitOps</h1>
+                            <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">Smart Fleet Hub</p>
+                        </div>
+                    </div>
                     
-                    <form onSubmit={handleLogin} className="space-y-5">
+                    <h2 className="text-xl font-bold mb-6 text-slate-800">Sign in to Platform</h2>
+                    
+                    <form onSubmit={handleLogin} className="space-y-4">
                         <div>
-                            <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider">EMAIL</label>
-                            <input type="email" required placeholder="manager@transitops.com" className="w-full px-4 py-3 border border-slate-700 rounded-xl bg-transparent text-white focus:outline-none focus:border-orange-500" value={authEmail} onChange={e => setAuthEmail(e.target.value)} />
+                            <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Corporate Email</label>
+                            <input 
+                                type="email" required placeholder="manager@transitops.com" 
+                                className="w-full px-4 py-3 border border-white/60 rounded-xl bg-white/40 focus:bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-400 font-medium" 
+                                value={authEmail} onChange={e => setAuthEmail(e.target.value)} 
+                            />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider">PASSWORD</label>
-                            <input type="password" required placeholder="••••••••" className="w-full px-4 py-3 border border-slate-700 rounded-xl bg-transparent text-white focus:outline-none focus:border-orange-500" value={authPassword} onChange={e => setAuthPassword(e.target.value)} />
+                            <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Security Password</label>
+                            <input 
+                                type="password" required placeholder="••••••••" 
+                                className="w-full px-4 py-3 border border-white/60 rounded-xl bg-white/40 focus:bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-400 font-medium" 
+                                value={authPassword} onChange={e => setAuthPassword(e.target.value)} 
+                            />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider">ROLE (RBAC)</label>
-                            <select className="w-full px-4 py-3 border border-slate-700 rounded-xl bg-[#111111] text-white focus:outline-none focus:border-orange-500" value={authRole} onChange={e => setAuthRole(e.target.value)}>
+                            <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">ROLE (RBAC)</label>
+                            <select 
+                                className="w-full px-4 py-3 border border-white/60 rounded-xl bg-white/50 focus:bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-bold text-slate-700" 
+                                value={authRole} onChange={e => {
+                                    const newRole = e.target.value;
+                                    setAuthRole(newRole);
+                                    if (newRole === "Fleet Manager") setAuthEmail("manager@transitops.com");
+                                    else if (newRole === "Dispatcher") setAuthEmail("dispatcher@transitops.com");
+                                    else if (newRole === "Safety Officer") setAuthEmail("safety@transitops.com");
+                                    else if (newRole === "Financial Analyst") setAuthEmail("finance@transitops.com");
+                                }}
+                            >
                                 <option value="Fleet Manager">Fleet Manager</option>
                                 <option value="Dispatcher">Dispatcher</option>
                                 <option value="Safety Officer">Safety Officer</option>
                                 <option value="Financial Analyst">Financial Analyst</option>
                             </select>
                         </div>
-                        
-                        <div className="flex items-center justify-between text-sm">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input type="checkbox" className="form-checkbox h-4 w-4 text-orange-500 rounded border-slate-700 bg-transparent focus:ring-orange-500 focus:ring-offset-gray-900" />
-                                <span className="text-slate-300">Remember me</span>
-                            </label>
-                            <a href="#" className="text-blue-400 hover:text-blue-300">Forgot password?</a>
-                        </div>
-                        
-                        <button type="submit" disabled={isLoading} className="w-full py-3 bg-[#b4690e] text-white rounded-xl font-bold hover:bg-[#9a580c] transition shadow-lg disabled:opacity-50 mt-4">
-                            {isLoading ? "Signing In..." : "Sign In"}
+                        <button 
+                            type="submit" disabled={isLoading} 
+                            className="w-full mt-2 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 disabled:opacity-50 transform hover:-translate-y-0.5 active:translate-y-0"
+                        >
+                            {isLoading ? "Authenticating..." : "Access Terminal"}
                         </button>
                     </form>
-
-                    <div className="mt-10 pt-6 border-t border-slate-800">
-                        <p className="text-sm text-slate-400 mb-3">Access is scoped by role after login:</p>
-                        <ul className="text-sm text-slate-300 space-y-2">
-                            <li>• Fleet Manager &rarr; Fleet, Maintenance</li>
-                            <li>• Dispatcher &rarr; Dashboard, Trips</li>
-                            <li>• Safety Officer &rarr; Drivers, Compliance</li>
-                            <li>• Financial Analyst &rarr; Fuel & Expenses, Analytics</li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className={`min-h-screen flex font-sans transition-colors ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+        <div className={`min-h-screen flex font-sans transition-colors ${darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
             <Sidebar
                 darkMode={darkMode} setDarkMode={setDarkMode}
                 user={user} setUser={setUser}

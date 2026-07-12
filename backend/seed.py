@@ -39,14 +39,14 @@ def seed_db():
         db.commit()
 
         print("Seeding Users...")
-        # Create a default user for testing
-        admin_user = User(
-            id=uuid.uuid4(),
-            email="admin@transitops.com",
-            hashed_password=hash_password("admin"),
-            role_id=roles["Fleet Manager"].id
-        )
-        db.add(admin_user)
+        # Create default users for testing all roles
+        users = [
+            User(id=uuid.uuid4(), email="manager@transitops.com", hashed_password=hash_password("admin"), role_id=roles["Fleet Manager"].id),
+            User(id=uuid.uuid4(), email="dispatcher@transitops.com", hashed_password=hash_password("admin"), role_id=roles["Dispatcher"].id),
+            User(id=uuid.uuid4(), email="safety@transitops.com", hashed_password=hash_password("admin"), role_id=roles["Safety Officer"].id),
+            User(id=uuid.uuid4(), email="finance@transitops.com", hashed_password=hash_password("admin"), role_id=roles["Financial Analyst"].id)
+        ]
+        db.add_all(users)
         db.commit()
 
         print("Seeding Vehicles...")
@@ -105,8 +105,8 @@ def seed_db():
         d3 = Driver(
             id=uuid.uuid4(),
             name="John Doe",
-            license_number="DL-IND-1122",
-            license_expiry=datetime.strptime("2024-01-01", "%Y-%m-%d").date(),
+            license_number="DL-US-12345",
+            license_expiry=datetime.strptime("2030-01-01", "%Y-%m-%d").date(),
             contact_number="+91 8887776665",
             safety_score=72,
             status="Available"
