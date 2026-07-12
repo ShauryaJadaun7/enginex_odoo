@@ -24,8 +24,8 @@ export default function Sidebar({ darkMode, setDarkMode, user, setUser, currentT
                         { id: "dashboard", label: "Dashboard Hub", icon: <LayoutDashboard className="h-4 w-4" />, roles: ["Fleet Manager", "Safety Officer", "Dispatcher", "Financial Analyst"] },
                         { id: "vehicles", label: "Vehicle Registry", icon: <Truck className="h-4 w-4" />, roles: ["Fleet Manager"] },
                         { id: "drivers", label: "Driver Directory", icon: <Users className="h-4 w-4" />, roles: ["Safety Officer", "Dispatcher", "Fleet Manager"] },
-                        { id: "trips", label: "Trip Dispatcher", icon: <MapPin className="h-4 w-4" />, roles: ["Dispatcher", "Fleet Manager"] },
-                        { id: "maintenance", label: "Maintenance Logs", icon: <Wrench className="h-4 w-4" />, roles: ["Fleet Manager", "Safety Officer"] },
+                        { id: "trips", label: "Trip Dispatcher", icon: <MapPin className="h-4 w-4" />, roles: ["Dispatcher"] },
+                        { id: "maintenance", label: "Maintenance Logs", icon: <Wrench className="h-4 w-4" />, roles: ["Safety Officer"] },
                         { id: "expenses", label: "Fuel & Expenses", icon: <DollarSign className="h-4 w-4" />, roles: ["Financial Analyst"] },
                         { id: "analytics", label: "Reports & ROI", icon: <BarChart3 className="h-4 w-4" />, roles: ["Financial Analyst", "Fleet Manager"] },
                     ].filter(item => item.roles.includes(user.role)).map(item => (
