@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from app.config import settings
 from app.api.v1 import api_router
+import app.models  # Initialize SQLAlchemy registry
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -12,7 +13,7 @@ app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

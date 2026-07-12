@@ -2,6 +2,5 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
-# Import all models to register them on Base.metadata
-from app.models.user import User, Role  # noqa
+# Model imports removed to avoid circular dependencies
 

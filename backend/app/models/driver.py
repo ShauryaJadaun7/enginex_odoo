@@ -3,7 +3,7 @@
 # driver.py
 from datetime import date
 from uuid import UUID, uuid4
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, List
 from sqlalchemy import String, Numeric, Date, Boolean, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
