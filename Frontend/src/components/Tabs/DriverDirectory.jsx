@@ -12,7 +12,7 @@ export default function DriverDirectory({
                     <button onClick={() => handleExportDataCSV('drivers')} className="px-3 py-1.5 text-xs font-bold border rounded-lg bg-white dark:bg-slate-800 flex items-center space-x-1">
                         <Download className="h-3.5 w-3.5" /> <span>Export CSV</span>
                     </button>
-                    {["Fleet Manager", "Safety Officer"].includes(user.role) && (
+                    {["Fleet Manager", "Safety Officer", "Dispatcher"].includes(user.role) && (
                         <button onClick={() => setShowDriverModal(true)} className="px-3 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-lg flex items-center space-x-1">
                             <Plus className="h-3.5 w-3.5" /> <span>Onboard Operator</span>
                         </button>
