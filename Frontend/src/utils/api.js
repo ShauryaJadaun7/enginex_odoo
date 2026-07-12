@@ -1,5 +1,34 @@
 const API_BASE_URL = "http://localhost:8000/api/v1";
 
+const snakeToCamel = (str) => str.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+
+const transformKeys = (obj) => {
+    if (Array.isArray(obj)) {
+        return obj.map(v => transformKeys(v));
+    } else if (obj !== null && obj.constructor === Object) {
+        return Object.keys(obj).reduce((result, key) => {
+            let finalKey = snakeToCamel(key);
+            
+            // Explicit mapping for frontend naming discrepancies
+            if (key === 'model_name') finalKey = 'nameModel';
+            if (key === 'max_capacity_kg') finalKey = 'maxLoadCapacity';
+            if (key === 'cargo_weight_kg') finalKey = 'cargoWeight';
+            if (key === 'expense_date' || key === 'log_date') finalKey = 'date';
+            if (key === 'amount') finalKey = 'cost';
+
+            result[finalKey] = transformKeys(obj[key]);
+            
+            // Mock liters for fuel expenses
+            if (key === 'expense_type' && obj[key] === 'Fuel') {
+                result['liters'] = Math.round(obj['amount'] / 4);
+            }
+            
+            return result;
+        }, {});
+    }
+    return obj;
+};
+
 // Helper function to handle fetch calls
 async function fetchAPI(endpoint, options = {}) {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -15,7 +44,8 @@ async function fetchAPI(endpoint, options = {}) {
         throw new Error(`API Error: ${response.statusText}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    return transformKeys(data);
 }
 
 export const fetchVehicles = () => fetchAPI("/vehicles/");
