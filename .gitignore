@@ -1,8 +1,6 @@
 # Python patterns
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 .Python
 env/
 venv/
@@ -12,7 +10,7 @@ pip-delete-this-directory.txt
 
 # Databases
 *.db
-*.sqlite3
+
 
 # Environments
 .env
