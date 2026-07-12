@@ -15,7 +15,7 @@ pip-delete-this-directory.txt
 # Environments
 .env
 .env*
-.env4
+
 
 # IDE / Editors
 .vscode/
