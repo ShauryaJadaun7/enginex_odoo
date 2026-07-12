@@ -1,0 +1,30 @@
+# Python patterns
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Databases
+*.db
+*.sqlite3
+
+# Environments
+.env
+.env*
+.env4
+
+# IDE / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

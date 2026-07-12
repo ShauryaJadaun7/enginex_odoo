@@ -1,0 +1,1 @@
+# Trip Pydantic Schemas placeholder

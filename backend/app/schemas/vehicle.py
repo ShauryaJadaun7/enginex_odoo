@@ -1,0 +1,1 @@
+# Vehicle Pydantic Schemas placeholder

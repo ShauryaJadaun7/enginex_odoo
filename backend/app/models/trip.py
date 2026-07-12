@@ -1,0 +1,1 @@
+# Trip SQLAlchemy Model placeholder

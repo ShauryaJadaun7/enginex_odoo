@@ -1,0 +1,1 @@
+# Vehicle SQLAlchemy Model placeholder
