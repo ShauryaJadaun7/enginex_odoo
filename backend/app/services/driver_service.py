@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from typing import List
+from uuid import UUID
 from sqlalchemy.orm import Session
 from app.models.driver import Driver
 from app.schemas.driver import DriverCreate, DriverUpdate
@@ -8,16 +9,16 @@ from app.core.exceptions import ExpiredLicenseException, DriverSuspendedExceptio
 def create_driver(db: Session, driver_in: DriverCreate) -> Driver:
     """
     Onboard a driver.
-    Checks if license_expiry is in the past and raises ExpiredLicenseException if so.
+    Checks if license_expiry_date is in the past and raises ExpiredLicenseException if so.
     """
-    if driver_in.license_expiry < date.today():
+    if driver_in.license_expiry_date < date.today():
         raise ExpiredLicenseException()
         
     db_driver = Driver(
         name=driver_in.name,
         license_number=driver_in.license_number,
         license_category=driver_in.license_category,
-        license_expiry=driver_in.license_expiry,
+        license_expiry_date=driver_in.license_expiry_date,
         contact_number=driver_in.contact_number,
         safety_score=driver_in.safety_score,
         status="Available"
@@ -27,7 +28,7 @@ def create_driver(db: Session, driver_in: DriverCreate) -> Driver:
     db.refresh(db_driver)
     return db_driver
 
-def update_driver_status(db: Session, driver_id: int, status: str) -> Driver:
+def update_driver_status(db: Session, driver_id: UUID, status: str) -> Driver:
     """
     Manually update driver operational status (e.g. to Suspended, Off Duty, etc.).
     """
@@ -40,7 +41,7 @@ def update_driver_status(db: Session, driver_id: int, status: str) -> Driver:
     db.refresh(db_driver)
     return db_driver
 
-def update_safety_score(db: Session, driver_id: int, new_score: int) -> Driver:
+def update_safety_score(db: Session, driver_id: UUID, new_score: int) -> Driver:
     """
     Update driver safety score. If score falls below 40, automatically suspend the driver.
     """
@@ -56,7 +57,7 @@ def update_safety_score(db: Session, driver_id: int, new_score: int) -> Driver:
     db.refresh(db_driver)
     return db_driver
 
-def check_driver_compliance(db: Session, driver_id: int) -> bool:
+def check_driver_compliance(db: Session, driver_id: UUID) -> bool:
     """
     Evaluate if driver is compliant and legally fit to drive.
     Raises ExpiredLicenseException if license is expired.
@@ -68,7 +69,7 @@ def check_driver_compliance(db: Session, driver_id: int) -> bool:
         return False
         
     # Check expiry
-    if db_driver.license_expiry < date.today():
+    if db_driver.license_expiry_date < date.today():
         raise ExpiredLicenseException()
         
     # Check suspension
@@ -82,7 +83,7 @@ def get_expiring_licenses(db: Session, days: int = 30) -> List[Driver]:
     Get a list of drivers whose licenses have expired or will expire within the given number of days.
     """
     target_date = date.today() + timedelta(days=days)
-    return db.query(Driver).filter(Driver.license_expiry <= target_date).all()
+    return db.query(Driver).filter(Driver.license_expiry_date <= target_date).all()
 
 def suspend_expired_licenses(db: Session) -> List[Driver]:
     """
@@ -90,7 +91,7 @@ def suspend_expired_licenses(db: Session) -> List[Driver]:
     update their status to Suspended, and return them.
     """
     expired_drivers = db.query(Driver).filter(
-        Driver.license_expiry < date.today(),
+        Driver.license_expiry_date < date.today(),
         Driver.status != "Suspended"
     ).all()
     

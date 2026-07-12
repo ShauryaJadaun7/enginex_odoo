@@ -88,7 +88,8 @@ def seed_db():
             id=uuid.uuid4(),
             name="Alex",
             license_number="DL-IND-9988",
-            license_expiry=datetime.strptime("2028-12-31", "%Y-%m-%d").date(),
+            license_category="Commercial",
+            license_expiry_date=datetime.strptime("2028-12-31", "%Y-%m-%d").date(),
             contact_number="+91 9876543210",
             safety_score=95,
             status="Available"
@@ -97,7 +98,8 @@ def seed_db():
             id=uuid.uuid4(),
             name="Rajesh Kumar",
             license_number="DL-IND-4455",
-            license_expiry=datetime.strptime("2027-05-14", "%Y-%m-%d").date(),
+            license_category="Heavy Commercial",
+            license_expiry_date=datetime.strptime("2027-05-14", "%Y-%m-%d").date(),
             contact_number="+91 9998887776",
             safety_score=88,
             status="On Trip"
@@ -106,7 +108,8 @@ def seed_db():
             id=uuid.uuid4(),
             name="John Doe",
             license_number="DL-US-12345",
-            license_expiry=datetime.strptime("2030-01-01", "%Y-%m-%d").date(),
+            license_category="Light Commercial",
+            license_expiry_date=datetime.strptime("2030-01-01", "%Y-%m-%d").date(),
             contact_number="+91 8887776665",
             safety_score=72,
             status="Available"
