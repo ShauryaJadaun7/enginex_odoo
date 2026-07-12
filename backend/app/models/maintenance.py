@@ -4,7 +4,7 @@
 from datetime import date
 from uuid import UUID, uuid4
 from typing import TYPE_CHECKING
-from sqlalchemy import String, ForeignKey, Date, Boolean, Text
+from sqlalchemy import String, ForeignKey, Date, Boolean, Text, CheckConstraint, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -23,10 +23,15 @@ class MaintenanceLog(Base):
     vehicle_id: Mapped[UUID] = mapped_column(ForeignKey("vehicles.id", ondelete="CASCADE"), nullable=False)
     log_date: Mapped[date] = mapped_column(Date, default=date.today)
     description: Mapped[str] = mapped_column(Text, nullable=False)
+    cost: Mapped[float] = mapped_column(Numeric(12, 2), default=0.00)
     status: Mapped[str] = mapped_column(String(20), default="Open") # Open, Closed
     is_predictive: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
     vehicle: Mapped["Vehicle"] = relationship(back_populates="maintenance_logs")
+
+    __table_args__ = (
+        CheckConstraint("status IN ('Open', 'Closed', 'Active')", name='chk_maint_status'),
+    )
 
 

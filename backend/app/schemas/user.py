@@ -22,6 +22,7 @@ class UserCreate(UserBase):
 class UserResponse(UserBase):
     id: UUID
     role_id: UUID
+    created_at: Optional[datetime] = None
     last_active_at: Optional[datetime]
 
     class Config:

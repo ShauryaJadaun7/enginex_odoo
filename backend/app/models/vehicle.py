@@ -3,7 +3,7 @@
 # vehicle.py
 from uuid import UUID, uuid4
 from typing import Optional, Dict, Any, TYPE_CHECKING
-from sqlalchemy import String, Numeric
+from sqlalchemy import String, Numeric, CheckConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -33,5 +33,9 @@ class Vehicle(Base):
     # Relationships
     trips: Mapped[list["Trip"]] = relationship(back_populates="vehicle")
     maintenance_logs: Mapped[list["MaintenanceLog"]] = relationship(back_populates="vehicle")
+
+    __table_args__ = (
+        CheckConstraint("status IN ('Available', 'On Trip', 'In Shop', 'Retired')", name='chk_vehicle_status'),
+    )
 
 

@@ -1,10 +1,13 @@
 from datetime import date
 from uuid import UUID
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 class DriverBase(BaseModel):
     name: str = Field(..., max_length=100)
     license_number: str = Field(..., max_length=50)
+    license_category: str = Field(default="Standard", max_length=50)
+    contact_number: Optional[str] = Field(default=None, max_length=20)
     license_expiry: date
     safety_score: float = Field(default=100.0, ge=0, le=100)
     status: str = Field(default="Available")

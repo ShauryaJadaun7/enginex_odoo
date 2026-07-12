@@ -1,6 +1,7 @@
 from uuid import UUID
 from typing import Optional, List, Dict
 from pydantic import BaseModel, Field
+from datetime import datetime
 
 class TripBase(BaseModel):
     vehicle_id: UUID
@@ -9,6 +10,7 @@ class TripBase(BaseModel):
     destination: str = Field(..., max_length=255)
     cargo_weight_kg: float = Field(..., gt=0)
     planned_distance: float = Field(..., gt=0)
+    revenue: float = Field(default=0.00, ge=0)
     status: str = Field(default="Draft")
     route_polyline: List[Dict[str, float]] = Field(default_factory=list)
     ai_pairing_score: Optional[float] = Field(default=None, ge=0, le=100)
@@ -18,6 +20,7 @@ class TripCreate(TripBase):
 
 class TripResponse(TripBase):
     id: UUID
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
