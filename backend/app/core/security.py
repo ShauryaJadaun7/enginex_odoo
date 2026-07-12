@@ -1,13 +1,12 @@
-# Password hashing and JWT generation placeholders
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_password_hash(password: str) -> str:
-    """Placeholder for password hashing"""
-    pass
+    """Hash a password using bcrypt."""
+    return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Placeholder for password verification"""
-    pass
+    """Verify a plain password against its hashed value."""
+    return pwd_context.verify(plain_password, hashed_password)
 
-def create_access_token(data: dict, expires_delta = None) -> str:
-    """Placeholder for creating JWT access token"""
-    pass
