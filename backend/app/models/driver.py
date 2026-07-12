@@ -36,5 +36,3 @@ class Driver(Base):
         CheckConstraint('safety_score >= 0 AND safety_score <= 100', name='chk_driver_safety'),
         CheckConstraint("status IN ('Available', 'On Trip', 'Off Duty', 'Suspended')", name='chk_driver_status'),
     )
-
-
