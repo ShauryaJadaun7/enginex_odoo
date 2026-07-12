@@ -13,8 +13,8 @@ from app.schemas.expense import (
 )
 from app.services.expense import ExpenseService
 
-# Expenses are ONLY visible to the Financial Analyst
-router = APIRouter(dependencies=[Depends(RoleChecker(["Financial Analyst"]))])
+# Expenses are visible to Financial Analyst and Fleet Manager (for Analytics)
+router = APIRouter(dependencies=[Depends(RoleChecker(["Fleet Manager", "Financial Analyst"]))])
 
 @router.post("/outflow", response_model=OutflowMessage, status_code=status.HTTP_201_CREATED)
 def log_outflow(outflow_in: OutflowCreate, db: Session = Depends(get_db)):
