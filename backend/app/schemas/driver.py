@@ -1,5 +1,6 @@
 from datetime import date
 from typing import Optional
+from uuid import UUID
 from pydantic import BaseModel, Field, field_validator
 
 class DriverBase(BaseModel):
@@ -35,7 +36,7 @@ class DriverUpdate(BaseModel):
         return v
 
 class DriverResponse(DriverBase):
-    id: int
+    id: UUID
     status: str
 
     class Config:

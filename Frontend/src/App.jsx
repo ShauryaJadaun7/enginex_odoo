@@ -145,6 +145,19 @@ export default function App() {
                         promises.push(fetchTrips().then(setTrips));
                     }
 
+                    // Maintenance: Fleet Manager, Safety Officer
+                    if (["Fleet Manager", "Safety Officer"].includes(user.role)) {
+                        promises.push(fetchMaintenance().then(setMaintenanceLogs));
+                    }
+
+                    // Expenses: Fleet Manager, Financial Analyst
+                    if (["Fleet Manager", "Financial Analyst"].includes(user.role)) {
+                        promises.push(fetchExpenses().then(res => {
+                            setExpenses(res.filter(e => e.expenseType !== 'Fuel'));
+                            setFuelLogs(res.filter(e => e.expenseType === 'Fuel'));
+                        }));
+                    }
+
                     await Promise.all(promises);
                 } catch (error) {
                     console.error("Failed to load initial data", error);

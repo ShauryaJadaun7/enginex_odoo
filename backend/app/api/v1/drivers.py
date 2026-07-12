@@ -1,4 +1,5 @@
 from typing import List, Optional
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from sqlalchemy.orm import Session
 
@@ -7,7 +8,7 @@ from app.models.driver import Driver
 from app.schemas.driver import DriverCreate, DriverUpdate, DriverResponse
 from app.services import driver_service
 
-router = APIRouter(dependencies=[Depends(RoleChecker(["safety_officer"]))])
+router = APIRouter(dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager", "Dispatcher"]))])
 
 @router.post("/", response_model=DriverResponse, status_code=status.HTTP_201_CREATED)
 def onboard_driver(
@@ -33,7 +34,7 @@ def list_drivers(
 
 @router.get("/{driver_id}", response_model=DriverResponse)
 def get_driver_profile(
-    driver_id: int,
+    driver_id: UUID,
     db: Session = Depends(get_db)
 ):
     """Retrieve details for a specific driver."""
@@ -47,7 +48,7 @@ def get_driver_profile(
 
 @router.put("/{driver_id}", response_model=DriverResponse)
 def update_driver_details(
-    driver_id: int,
+    driver_id: UUID,
     driver_in: DriverUpdate,
     db: Session = Depends(get_db)
 ):
@@ -73,7 +74,7 @@ def update_driver_details(
 
 @router.patch("/{driver_id}/safety-score", response_model=DriverResponse)
 def update_driver_safety_score(
-    driver_id: int,
+    driver_id: UUID,
     safety_score: int = Body(..., ge=0, le=100, embed=True),
     db: Session = Depends(get_db)
 ):
