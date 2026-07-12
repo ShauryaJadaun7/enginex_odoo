@@ -85,4 +85,3 @@ def update_driver_safety_score(
             detail="Driver profile not found."
         )
     return db_driver
-
