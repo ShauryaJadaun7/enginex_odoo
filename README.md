@@ -64,8 +64,6 @@ erDiagram
 
 ## 📸 Dashboard Previews
 
-*(Replace these placeholders with your actual screenshots for the judges!)*
-
 | 🚚 Dispatcher Console | 💰 Financial Operations Center |
 | :---: | :---: |
 | ![Dispatcher Console](./preview/Dashboard.png) | ![Financial Operations Center](./preview/Analytics.png) |
