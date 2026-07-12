@@ -331,42 +331,67 @@ export default function App() {
 
     if (!user) {
         return (
-            <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900">
-                <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full border border-slate-200">
+            <div 
+                className="min-h-screen flex items-center justify-center p-6 text-slate-900 bg-cover bg-center relative"
+                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=2070&auto=format&fit=crop')" }}
+            >
+                {/* Dark Overlay for better contrast */}
+                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"></div>
+
+                {/* Glassmorphic Login Box with animation */}
+                <div className="relative z-10 glass-panel rounded-3xl p-8 max-w-md w-full animate-fade-in-up transform transition-all hover:scale-[1.01] duration-500">
                     <div className="flex items-center space-x-3 mb-6">
-                        <div className="bg-blue-600 p-2 rounded-xl text-white"><Truck className="h-6 w-6" /></div>
+                        <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-600/30">
+                            <Truck className="h-6 w-6" />
+                        </div>
                         <div>
-                            <h1 className="text-2xl font-black tracking-tight">TransitOps</h1>
-                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Smart Fleet Hub</p>
+                            <h1 className="text-2xl font-black tracking-tight text-slate-800">TransitOps</h1>
+                            <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">Smart Fleet Hub</p>
                         </div>
                     </div>
-                    <h2 className="text-xl font-bold mb-4">Sign in to Platform</h2>
+                    
+                    <h2 className="text-xl font-bold mb-6 text-slate-800">Sign in to Platform</h2>
+                    
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-semibold text-slate-600 mb-1">Corporate Email Address</label>
-                            <input type="email" required placeholder="manager@transitops.com" className="w-full px-4 py-2 border rounded-xl bg-slate-50" value={authEmail} onChange={e => setAuthEmail(e.target.value)} />
+                            <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Corporate Email</label>
+                            <input 
+                                type="email" required placeholder="manager@transitops.com" 
+                                className="w-full px-4 py-3 border border-white/60 rounded-xl bg-white/40 focus:bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-400 font-medium" 
+                                value={authEmail} onChange={e => setAuthEmail(e.target.value)} 
+                            />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-slate-600 mb-1">Security Password</label>
-                            <input type="password" required placeholder="••••••••" className="w-full px-4 py-2 border rounded-xl bg-slate-50" value={authPassword} onChange={e => setAuthPassword(e.target.value)} />
+                            <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Security Password</label>
+                            <input 
+                                type="password" required placeholder="••••••••" 
+                                className="w-full px-4 py-3 border border-white/60 rounded-xl bg-white/40 focus:bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-400 font-medium" 
+                                value={authPassword} onChange={e => setAuthPassword(e.target.value)} 
+                            />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-slate-600 mb-1">ROLE (RBAC)</label>
-                            <select className="w-full px-4 py-2 border rounded-xl bg-slate-50" value={authRole} onChange={e => {
-                                const newRole = e.target.value;
-                                setAuthRole(newRole);
-                                if (newRole === "Fleet Manager") setAuthEmail("manager@transitops.com");
-                                else if (newRole === "Dispatcher") setAuthEmail("dispatcher@transitops.com");
-                                else if (newRole === "Safety Officer") setAuthEmail("safety@transitops.com");
-                                else if (newRole === "Financial Analyst") setAuthEmail("finance@transitops.com");
-                            }}>
+                            <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">ROLE (RBAC)</label>
+                            <select 
+                                className="w-full px-4 py-3 border border-white/60 rounded-xl bg-white/50 focus:bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-bold text-slate-700" 
+                                value={authRole} onChange={e => {
+                                    const newRole = e.target.value;
+                                    setAuthRole(newRole);
+                                    if (newRole === "Fleet Manager") setAuthEmail("manager@transitops.com");
+                                    else if (newRole === "Dispatcher") setAuthEmail("dispatcher@transitops.com");
+                                    else if (newRole === "Safety Officer") setAuthEmail("safety@transitops.com");
+                                    else if (newRole === "Financial Analyst") setAuthEmail("finance@transitops.com");
+                                }}
+                            >
                                 <option value="Fleet Manager">Fleet Manager</option>
                                 <option value="Dispatcher">Dispatcher</option>
                                 <option value="Safety Officer">Safety Officer</option>
                                 <option value="Financial Analyst">Financial Analyst</option>
                             </select>
                         </div>
-                        <button type="submit" disabled={isLoading} className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition shadow-lg disabled:opacity-50">
+                        <button 
+                            type="submit" disabled={isLoading} 
+                            className="w-full mt-2 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 disabled:opacity-50 transform hover:-translate-y-0.5 active:translate-y-0"
+                        >
                             {isLoading ? "Authenticating..." : "Access Terminal"}
                         </button>
                     </form>
@@ -376,7 +401,7 @@ export default function App() {
     }
 
     return (
-        <div className={`min-h-screen flex font-sans transition-colors ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+        <div className={`min-h-screen flex font-sans transition-colors ${darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
             <Sidebar
                 darkMode={darkMode} setDarkMode={setDarkMode}
                 user={user} setUser={setUser}
