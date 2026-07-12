@@ -8,9 +8,9 @@ from app.models.driver import Driver
 from app.schemas.driver import DriverCreate, DriverUpdate, DriverResponse
 from app.services import driver_service
 
-router = APIRouter(dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager", "Dispatcher"]))])
+router = APIRouter()
 
-@router.post("/", response_model=DriverResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=DriverResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(RoleChecker(["Safety Officer"]))])
 def onboard_driver(
     driver_in: DriverCreate,
     db: Session = Depends(get_db)
@@ -18,7 +18,7 @@ def onboard_driver(
     """Onboard a new driver under Safety Officer RBAC."""
     return driver_service.create_driver(db=db, driver_in=driver_in)
 
-@router.get("/", response_model=List[DriverResponse])
+@router.get("/", response_model=List[DriverResponse], dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager", "Dispatcher"]))])
 def list_drivers(
     status: Optional[str] = Query(None, description="Filter by operational status"),
     license_category: Optional[str] = Query(None, description="Filter by license category"),
@@ -32,7 +32,28 @@ def list_drivers(
         query = query.filter(Driver.license_category == license_category)
     return query.all()
 
-@router.get("/{driver_id}", response_model=DriverResponse)
+@router.get("/compliance/expiring-licenses", response_model=List[DriverResponse], dependencies=[Depends(RoleChecker(["Safety Officer"]))])
+def get_expiring_licenses(
+    days: int = Query(30, ge=0, description="Days until expiry"),
+    db: Session = Depends(get_db)
+):
+    """List drivers whose licenses expire within the specified number of days."""
+    return driver_service.get_expiring_licenses(db=db, days=days)
+
+@router.post("/compliance/suspend-expired", response_model=List[DriverResponse], dependencies=[Depends(RoleChecker(["Safety Officer"]))])
+def suspend_expired_licenses(db: Session = Depends(get_db)):
+    """Automatically suspend drivers with expired licenses."""
+    return driver_service.suspend_expired_licenses(db=db)
+
+@router.get("/compliance/low-safety-scores", response_model=List[DriverResponse], dependencies=[Depends(RoleChecker(["Safety Officer"]))])
+def get_low_safety_scores(
+    threshold: int = Query(70, ge=0, le=100, description="Safety score threshold"),
+    db: Session = Depends(get_db)
+):
+    """List drivers with safety scores below a threshold."""
+    return driver_service.get_low_safety_scores(db=db, threshold=threshold)
+
+@router.get("/{driver_id}", response_model=DriverResponse, dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager", "Dispatcher"]))])
 def get_driver_profile(
     driver_id: UUID,
     db: Session = Depends(get_db)
@@ -46,7 +67,7 @@ def get_driver_profile(
         )
     return db_driver
 
-@router.put("/{driver_id}", response_model=DriverResponse)
+@router.put("/{driver_id}", response_model=DriverResponse, dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager"]))])
 def update_driver_details(
     driver_id: UUID,
     driver_in: DriverUpdate,
@@ -72,7 +93,7 @@ def update_driver_details(
     db.refresh(db_driver)
     return db_driver
 
-@router.patch("/{driver_id}/safety-score", response_model=DriverResponse)
+@router.patch("/{driver_id}/safety-score", response_model=DriverResponse, dependencies=[Depends(RoleChecker(["Safety Officer"]))])
 def update_driver_safety_score(
     driver_id: UUID,
     safety_score: int = Body(..., ge=0, le=100, embed=True),
