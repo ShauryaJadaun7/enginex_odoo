@@ -7,7 +7,7 @@ class DriverBase(BaseModel):
     name: str = Field(..., description="Driver's full name")
     license_number: str = Field(..., description="Unique license number")
     license_category: str = Field(..., description="E.g., 'Heavy Commercial', 'Light Commercial'")
-    license_expiry: date = Field(..., description="Driver's license expiry date")
+    license_expiry_date: date = Field(..., description="Driver's license expiry date")
     contact_number: str = Field(..., description="Contact phone number")
     safety_score: int = Field(default=100, ge=0, le=100, description="Safety score (0-100)")
 
@@ -23,7 +23,7 @@ class DriverUpdate(BaseModel):
     name: Optional[str] = None
     license_number: Optional[str] = None
     license_category: Optional[str] = None
-    license_expiry: Optional[date] = None
+    license_expiry_date: Optional[date] = None
     contact_number: Optional[str] = None
     safety_score: Optional[int] = Field(default=None, ge=0, le=100)
     status: Optional[str] = None

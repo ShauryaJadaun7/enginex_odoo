@@ -10,7 +10,7 @@ from app.services import driver_service
 
 router = APIRouter()
 
-@router.post("/", response_model=DriverResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(RoleChecker(["Safety Officer"]))])
+@router.post("/", response_model=DriverResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(RoleChecker(["Safety Officer", "Dispatcher"]))])
 def onboard_driver(
     driver_in: DriverCreate,
     db: Session = Depends(get_db)
@@ -67,7 +67,7 @@ def get_driver_profile(
         )
     return db_driver
 
-@router.put("/{driver_id}", response_model=DriverResponse, dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager"]))])
+@router.put("/{driver_id}", response_model=DriverResponse, dependencies=[Depends(RoleChecker(["Safety Officer", "Fleet Manager", "Dispatcher"]))])
 def update_driver_details(
     driver_id: UUID,
     driver_in: DriverUpdate,
