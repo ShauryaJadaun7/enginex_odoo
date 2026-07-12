@@ -23,13 +23,13 @@ export default function Sidebar({ darkMode, setDarkMode, user, setUser, currentT
 
                 <nav className="p-4 space-y-1">
                     {[
-                        { id: "dashboard", label: "Dashboard Hub", icon: <LayoutDashboard className="h-4 w-4" />, roles: ["Fleet Manager", "Dispatcher", "Safety Officer", "Financial Analyst"] },
-                        { id: "vehicles", label: "Vehicle Registry", icon: <Truck className="h-4 w-4" />, roles: ["Fleet Manager", "Dispatcher", "Safety Officer", "Financial Analyst"] },
-                        { id: "drivers", label: "Driver Directory", icon: <Users className="h-4 w-4" />, roles: ["Fleet Manager", "Dispatcher", "Safety Officer"] },
-                        { id: "trips", label: "Trip Dispatcher", icon: <MapPin className="h-4 w-4" />, roles: ["Fleet Manager", "Dispatcher"] },
+                        { id: "dashboard", label: "Dashboard Hub", icon: <LayoutDashboard className="h-4 w-4" />, roles: ["Dispatcher"] },
+                        { id: "vehicles", label: "Vehicle Registry", icon: <Truck className="h-4 w-4" />, roles: ["Fleet Manager"] },
+                        { id: "drivers", label: "Driver Directory", icon: <Users className="h-4 w-4" />, roles: ["Safety Officer"] },
+                        { id: "trips", label: "Trip Dispatcher", icon: <MapPin className="h-4 w-4" />, roles: ["Dispatcher"] },
                         { id: "maintenance", label: "Maintenance Logs", icon: <Wrench className="h-4 w-4" />, roles: ["Fleet Manager", "Safety Officer"] },
-                        { id: "expenses", label: "Fuel & Expenses", icon: <DollarSign className="h-4 w-4" />, roles: ["Fleet Manager", "Financial Analyst"] },
-                        { id: "analytics", label: "Reports & ROI", icon: <BarChart3 className="h-4 w-4" />, roles: ["Fleet Manager", "Financial Analyst"] },
+                        { id: "expenses", label: "Fuel & Expenses", icon: <DollarSign className="h-4 w-4" />, roles: ["Financial Analyst"] },
+                        { id: "analytics", label: "Reports & ROI", icon: <BarChart3 className="h-4 w-4" />, roles: ["Financial Analyst"] },
                     ].filter(item => item.roles.includes(user.role)).map(item => (
                         <button key={item.id} onClick={() => setCurrentTab(item.id)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition ${currentTab === item.id ? "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400" : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400"}`}>
                             {item.icon} <span>{item.label}</span>
