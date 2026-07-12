@@ -112,3 +112,31 @@ export const createTripAPI = (t) => fetchAPI("/trips/", {
     })
 });
 
+export const updateTripStatusAPI = (tripId, status, finalOdometer = null) => fetchAPI(`/trips/${tripId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({
+        status,
+        final_odometer: finalOdometer
+    })
+});
+
+export const createMaintenanceAPI = (m) => fetchAPI("/maintenance/", {
+    method: "POST",
+    body: JSON.stringify({
+        vehicle_id: m.vehicleId,
+        log_date: m.date || new Date().toISOString().split('T')[0],
+        description: m.description,
+        cost: m.cost,
+        status: m.status || "Open",
+        is_predictive: m.isPredictive || false
+    })
+});
+
+export const updateMaintenanceStatusAPI = (logId, status) => fetchAPI(`/maintenance/${logId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({
+        status
+    })
+});
+
+

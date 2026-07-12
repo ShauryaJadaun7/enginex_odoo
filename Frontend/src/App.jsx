@@ -7,7 +7,8 @@ import {
 
 import {
     loginUser, fetchVehicles, fetchTrips, fetchDrivers, fetchMaintenance, fetchExpenses,
-    createVehicleAPI, createDriverAPI, createTripAPI
+    createVehicleAPI, createDriverAPI, createTripAPI,
+    updateTripStatusAPI, createMaintenanceAPI, updateMaintenanceStatusAPI
 } from "./utils/api.js";
 
 // Layout
@@ -340,13 +341,18 @@ export default function App() {
         }
     };
 
-    const handleCancelTrip = (tripId) => {
+    const handleCancelTrip = async (tripId) => {
         const target = trips.find(t => t.id === tripId);
         if (!target) return;
 
-        setVehicles(vehicles.map(v => v.id === target.vehicleId ? { ...v, status: "Available" } : v));
-        setDrivers(drivers.map(d => d.id === target.driverId ? { ...d, status: "Available" } : d));
-        setTrips(trips.map(t => t.id === tripId ? { ...t, status: "Cancelled" } : t));
+        try {
+            await updateTripStatusAPI(tripId, "Cancelled");
+            setVehicles(vehicles.map(v => v.id === target.vehicleId ? { ...v, status: "Available" } : v));
+            setDrivers(drivers.map(d => d.id === target.driverId ? { ...d, status: "Available" } : d));
+            setTrips(trips.map(t => t.id === tripId ? { ...t, status: "Cancelled" } : t));
+        } catch (err) {
+            setUiAlert({ message: "Failed to cancel trip: " + err.message, type: "error" });
+        }
     };
 
     const openCompletionInterface = (tripId) => {
@@ -356,44 +362,55 @@ export default function App() {
         setTripCompletionModal({ show: true, tripId });
     };
 
-    const submitTripCompletion = (e) => {
+    const submitTripCompletion = async (e) => {
         e.preventDefault();
         const targetTrip = trips.find(t => t.id === tripCompletionModal.tripId);
         if (!targetTrip) return;
 
-        setVehicles(vehicles.map(v => v.id === targetTrip.vehicleId ? { ...v, status: "Available", odometer: Number(completionData.finalOdometer) } : v));
-        setDrivers(drivers.map(d => d.id === targetTrip.driverId ? { ...d, status: "Available" } : d));
+        try {
+            await updateTripStatusAPI(tripCompletionModal.tripId, "Completed", Number(completionData.finalOdometer));
+            
+            setVehicles(vehicles.map(v => v.id === targetTrip.vehicleId ? { ...v, status: "Available", odometer: Number(completionData.finalOdometer) } : v));
+            setDrivers(drivers.map(d => d.id === targetTrip.driverId ? { ...d, status: "Available" } : d));
 
-        setFuelLogs([...fuelLogs, {
-            id: "f_" + Date.now(),
-            vehicleId: targetTrip.vehicleId,
-            liters: Number(completionData.fuelConsumed),
-            cost: Number(completionData.fuelCost),
-            date: new Date().toISOString().split('T')[0]
-        }]);
+            setFuelLogs([...fuelLogs, {
+                id: "f_" + Date.now(),
+                vehicleId: targetTrip.vehicleId,
+                liters: Number(completionData.fuelConsumed),
+                cost: Number(completionData.fuelCost),
+                date: new Date().toISOString().split('T')[0]
+            }]);
 
-        setTrips(trips.map(t => t.id === tripCompletionModal.tripId ? { ...t, status: "Completed", fuelConsumed: Number(completionData.fuelConsumed) } : t));
-        setTripCompletionModal({ show: false, tripId: "" });
+            setTrips(trips.map(t => t.id === tripCompletionModal.tripId ? { ...t, status: "Completed", fuelConsumed: Number(completionData.fuelConsumed) } : t));
+            setTripCompletionModal({ show: false, tripId: "" });
+        } catch (err) {
+            setUiAlert({ message: "Failed to log delivery: " + err.message, type: "error" });
+        }
     };
 
-    const executeMaintenanceLogging = (e) => {
+    const executeMaintenanceLogging = async (e) => {
         e.preventDefault();
-        setVehicles(vehicles.map(v => v.id === newMaint.vehicleId ? { ...v, status: "In Shop" } : v));
-        setMaintenanceLogs([...maintenanceLogs, {
-            ...newMaint,
-            id: "m_" + Date.now(),
-            cost: Number(newMaint.cost),
-            status: "Active"
-        }]);
-        setShowMaintenanceModal(false);
+        try {
+            const addedMaint = await createMaintenanceAPI(newMaint);
+            setVehicles(vehicles.map(v => v.id === newMaint.vehicleId ? { ...v, status: "In Shop" } : v));
+            setMaintenanceLogs([...maintenanceLogs, addedMaint]);
+            setShowMaintenanceModal(false);
+        } catch (err) {
+            setUiAlert({ message: "Failed to issue maintenance ticket: " + err.message, type: "error" });
+        }
     };
 
-    const closeMaintenanceRecord = (id) => {
+    const closeMaintenanceRecord = async (id) => {
         const log = maintenanceLogs.find(m => m.id === id);
         if (!log) return;
 
-        setVehicles(vehicles.map(v => v.id === log.vehicleId ? { ...v, status: v.status === "Retired" ? "Retired" : "Available" } : v));
-        setMaintenanceLogs(maintenanceLogs.map(m => m.id === id ? { ...m, status: "Closed" } : m));
+        try {
+            await updateMaintenanceStatusAPI(id, "Closed");
+            setVehicles(vehicles.map(v => v.id === log.vehicleId ? { ...v, status: v.status === "Retired" ? "Retired" : "Available" } : v));
+            setMaintenanceLogs(maintenanceLogs.map(m => m.id === id ? { ...m, status: "Closed" } : m));
+        } catch (err) {
+            setUiAlert({ message: "Failed to close maintenance record: " + err.message, type: "error" });
+        }
     };
 
     const createStandaloneExpense = (e) => {
