@@ -1,7 +1,88 @@
-from fastapi import APIRouter
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
+from sqlalchemy.orm import Session
 
-router = APIRouter()
+from app.api.deps import get_db, RoleChecker
+from app.models.driver import Driver
+from app.schemas.driver import DriverCreate, DriverUpdate, DriverResponse
+from app.services import driver_service
 
-@router.get("/")
-def get_drivers():
-    return []
+router = APIRouter(dependencies=[Depends(RoleChecker(["safety_officer"]))])
+
+@router.post("/", response_model=DriverResponse, status_code=status.HTTP_201_CREATED)
+def onboard_driver(
+    driver_in: DriverCreate,
+    db: Session = Depends(get_db)
+):
+    """Onboard a new driver under Safety Officer RBAC."""
+    return driver_service.create_driver(db=db, driver_in=driver_in)
+
+@router.get("/", response_model=List[DriverResponse])
+def list_drivers(
+    status: Optional[str] = Query(None, description="Filter by operational status"),
+    license_category: Optional[str] = Query(None, description="Filter by license category"),
+    db: Session = Depends(get_db)
+):
+    """List drivers with optional category or status filters."""
+    query = db.query(Driver)
+    if status:
+        query = query.filter(Driver.status == status)
+    if license_category:
+        query = query.filter(Driver.license_category == license_category)
+    return query.all()
+
+@router.get("/{driver_id}", response_model=DriverResponse)
+def get_driver_profile(
+    driver_id: int,
+    db: Session = Depends(get_db)
+):
+    """Retrieve details for a specific driver."""
+    db_driver = db.query(Driver).filter(Driver.id == driver_id).first()
+    if not db_driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Driver profile not found."
+        )
+    return db_driver
+
+@router.put("/{driver_id}", response_model=DriverResponse)
+def update_driver_details(
+    driver_id: int,
+    driver_in: DriverUpdate,
+    db: Session = Depends(get_db)
+):
+    """Update driver profile details."""
+    db_driver = db.query(Driver).filter(Driver.id == driver_id).first()
+    if not db_driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Driver profile not found."
+        )
+    
+    update_data = driver_in.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_driver, key, value)
+        
+    # Enforce safety score status check on update
+    if db_driver.safety_score < 40:
+        db_driver.status = "Suspended"
+
+    db.commit()
+    db.refresh(db_driver)
+    return db_driver
+
+@router.patch("/{driver_id}/safety-score", response_model=DriverResponse)
+def update_driver_safety_score(
+    driver_id: int,
+    safety_score: int = Body(..., ge=0, le=100, embed=True),
+    db: Session = Depends(get_db)
+):
+    """Quick PATCH endpoint to update safety metrics."""
+    db_driver = driver_service.update_safety_score(db=db, driver_id=driver_id, new_score=safety_score)
+    if not db_driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Driver profile not found."
+        )
+    return db_driver
+
